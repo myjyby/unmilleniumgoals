@@ -103,7 +103,7 @@ class RetrieveSeries(object):
 	exposed = True
 
 	@cherrypy.tools.accept(media='application/json')
-	def POST(self, column=None, value=None, date=None):
+	def POST(self, column=None, value=None, date=None, region=None, ctr=None):
 		#import pdb
 		#pdb.set_trace()
 		filters = map(int,value)
@@ -119,6 +119,14 @@ class RetrieveSeries(object):
 		else:
 			dx = data[data[column] == filters[0]] 
 			dy = data[data[column] == filters[1]] 
+
+		if region is not None:
+			dx = dx[dx['Region'] == region]
+			dy = dy[dy['Region'] == region]
+
+		if ctr is not None:
+			dx = dx[dx['CountryId'] == int(ctr)]
+			dy = dy[dy['CountryId'] == int(ctr)]
 		
 		ddatex = dx[dx['Year'] == int(date)]
 		dx['axis'] = 'x'
