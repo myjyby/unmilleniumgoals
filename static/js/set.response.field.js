@@ -574,7 +574,7 @@ function set_region_picker(countries,seriesId){
 				d3.select(".stat-menu")
 					.classed("hide",true);
 
-				set_bubbles(553,seriesId,1990,d.CountryId);
+				set_bubbles(553,seriesId,1990,true,d.CountryId);
 
 			});
 
@@ -585,8 +585,9 @@ function set_response_field(qidx,prevans){
 	var svg = d3.select("svg"),
 		question = [
 			"So, has this country already reached its target (at least temporarily—based on available data)?", 
-			/* IF YES */ 	"Do you think it will maintain its achievement?", 
-			/* IF NO */		"Do you think it will have reached its target by 2015 (today)?"
+			/* IF YES */ 	"Do you think it will have maintained its achievement?", 
+			/* IF NO */		"Do you think it will have reached its target by 2015 (today)?",
+			/* FOR AGGREGATION */	"So, has this area reached its target (at least temporarily—despite any missing data)?"
 		],
 		answers = [
 			[
@@ -615,11 +616,11 @@ function set_response_field(qidx,prevans){
 				{
 					text: "Most unlikely",
 					value: 3
-				},
-				{
+				}
+				/*{
 					text: "It is impossible to tell",
 					value: 4
-				}
+				}*/
 			],
 			[
 				{
@@ -642,10 +643,21 @@ function set_response_field(qidx,prevans){
 					text: "It is impossible to tell",
 					value: 4
 				}*/
+			],
+			[
+				{ 	
+					text: "Yes, it has", 
+					value: true 
+				},
+				{ 	
+					text: "No, it has not", 
+					value: false 
+				}
 			]
 		]
 
 	d3.select(".question-box").remove();
+	d3.select("div.ctr-list-menu table").classed("hide",true);
 
 	if(qidx === 1 && prevans === false){
 		qidx = 2;
@@ -656,7 +668,7 @@ function set_response_field(qidx,prevans){
 		.attr("width",_svg.width - _chart.width - _svg.hpadding)
 		.attr("height",_chart.height - 160)
 		.attr("x",_chart.width + _svg.hpadding + (_svg.width - _chart.width - _svg.hpadding))
-		.attr("y",160 + _svg.vpadding/2)
+		.attr("y",160 + _svg.vpadding/2);
 	/*.on("mouseover",function(){
 		d3.select(this)
 			.moveToFront()
@@ -758,7 +770,9 @@ function set_response_field(qidx,prevans){
 		.on("click",function(d){
 			if(qidx === 0){
 				var answer = estimate_soloed_countries_achievement(d.value);
-			}else{
+				set_response_field(qidx+1,answer);
+			}else if(qidx > 0 && qidx < 3){
+				//console.log(reg)
 				var trend_vals = get_last(reg,0,(year-1990),25),
 					description = "";
 
@@ -797,42 +811,18 @@ function set_response_field(qidx,prevans){
 						}
 					}
 				}
-			estimate_soloed_countries_achievement_proba(answer,description,trend_vals[0],trend_vals[2],2000,prevans,target_val)
-				// > THIS RETURNS [TREND (-1,0,1), ESTIMATED VALUE FOR 2015 WHICH NEEDS TO BE COMPARED TO THE TARGET]
-				//console.log(reg,target_val,year)
-			}
-			if(qidx === 0){
-				set_response_field(qidx+1,answer);
-			}else{
-				d3.selectAll(".possible-ans").remove();
-				d3.select(".question").html("")
-				.append("div")
-					.attr("class","force-white")
-					.style("line-height",(_chart.height - 160 - _svg.vpadding*2/3) + "px")
-					.style("text-align","center")
-					.style("cursor","pointer")
-					.html("Continue&nbsp;&nbsp;&nbsp;<i class='fa fa-arrow-circle-o-right'>")
-					.on("click",function(){
-						//d3.select(this).remove();
-						response_fo.transition()
-							.duration(_main_transition.fast_duration)
-							.ease(_main_transition.ease)
-							.attr("x",_chart.width + _svg.hpadding + (_svg.width - _chart.width - _svg.hpadding));
-							
-						d3.select("#footer").transition()
-							.duration(_main_transition.fast_duration)
-							.ease(_main_transition.ease)
-							.style("opacity",0);
+				estimate_soloed_countries_achievement_proba(answer,description,trend_vals[0],trend_vals[2],trend_vals[3],prevans,target_val)
+				
+				clear_and_go_next(1,bubble_data);
 
-						svg.transition()
-							.duration(_main_transition.duration)
-							.ease(_main_transition.ease)
-							.style("opacity",0)
-							.each("end",function(){
-								return go_to_stage2(bubble_data.region_name);
-							});
-					})
-
+			}else if(qidx === 3){
+				//alert("here")
+				if(d3.select(".show-mean").classed("active") === true){
+					var correct = estimate_soloed_regions_achievement(true,"mean");
+				}else if(d3.select(".show-median").classed("active") === true){
+					var correct = estimate_soloed_regions_achievement(true,"median");
+				}
+				clear_and_go_next(2,correct);
 			}
 		});
 
@@ -851,7 +841,46 @@ function set_response_field(qidx,prevans){
 
 }
 
-function go_to_stage2(area,indicator){
+function clear_and_go_next(stage,data){
+	var svg = d3.select("svg");
+
+	d3.selectAll(".possible-ans").remove();
+	d3.select(".question").html("")
+	.append("div")
+		.attr("class","force-white")
+		.style("line-height",(_chart.height - 160 - _svg.vpadding*2/3) + "px")
+		.style("text-align","center")
+		.style("cursor","pointer")
+		.html("Continue&nbsp;&nbsp;&nbsp;<i class='fa fa-arrow-circle-o-right'>")
+		.on("click",function(){
+			var response_fo = d3.select(".question-box");
+
+			response_fo.transition()
+				.duration(_main_transition.fast_duration)
+				.ease(_main_transition.ease)
+				.attr("x",_chart.width + _svg.hpadding + (_svg.width - _chart.width - _svg.hpadding));
+				
+			d3.select("#footer").transition()
+				.duration(_main_transition.fast_duration)
+				.ease(_main_transition.ease)
+				.style("opacity",0);
+
+			svg.transition()
+				.duration(_main_transition.duration)
+				.ease(_main_transition.ease)
+				.style("opacity",0)
+				.each("end",function(){
+					var seriesId = d3.select(".y-label").datum().SeriesRowId;
+					if(stage === 1){
+						return go_to_stage2(data.region_name,data.region,seriesId);
+					}else if(stage === 2){
+						return go_to_stage3(data);
+					}
+				});
+		})
+}
+
+function go_to_stage2(area,region,indicator){
 	d3.select("svg").remove();
 
 	d3.select("#footer")
@@ -865,4 +894,312 @@ function go_to_stage2(area,indicator){
 	var question = container.append("h1")
 		.attr("class","minor quesiton")
 		.html("Now, is the same true for the entire <em>" + area + "</em> area?<br/>Well, that might depend on the statistic used.");
+
+
+	var stat_menu = container.append("div")
+		.attr("class","stat-menu-container")
+	.append("div")
+		.attr("class","stat-menu");
+
+	stat_menu.append("div")
+		.attr("class","show-mean")
+		.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Mean")
+		.on("mouseover",function(){
+			var txt = "The mean is the sum of all the values divided by the number of values, <em>i.e.,</em> the sum of the values for each country at a given point in time, divided by the number of countries.";
+			d3.select(".stat-description")
+				.html(txt);
+		})
+		.on("mouseout",function(){
+			d3.select(".stat-description")
+				.html("");
+		})
+		.on("click",function(){
+			d3.select("#question-container")
+				.html("")
+				.classed("hide",true);
+			d3.select("svg").remove();
+
+			d3.select("#footer")
+				.classed("hide",false);
+
+
+			//set_footer();
+			$("#timeline").slider().slider('setValue',1990);
+			set_svg();
+
+			set_chart_tabs();
+
+			var sp = d3.select(".scatterplot-tab");
+			sp.select("path").classed("hide",true);
+			sp.select("rect").classed("hide",true);
+			sp.select("text").classed("hide",true);
+
+			set_axes();
+			set_timeline();
+
+			$.post("/retrievecountries")
+			.done(function(countries){
+				set_countrymenu(countries);
+
+				d3.select("#" + region).classed("highlight-lock",true);
+
+				d3.selectAll(".ctr-entry:not(.entry-" + region + ")")
+					.classed("hide",true);
+
+				d3.selectAll(".entry-" + region)
+					//.classed("isolated",true)
+					.classed("highlight-lock",true);
+					//.classed("original-isolation",true);
+
+				d3.select(".zoom-menu")
+					.classed("hide",true);
+
+				/*d3.select(".stat-menu")
+					.classed("hide",true);*/
+
+				d3.select(".show-median")
+					.classed("active",false);
+
+				set_bubbles(553,indicator,1990,true,null,region);
+
+			});
+
+		});
+
+	stat_menu.append("div")
+		.attr("class","show-median")
+		.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Median")
+		.on("mouseover",function(){
+			var txt = "The median is the value separating the higher half of the data sample from the lower half, <em>i.e.,</em> the country value which is “in the middle” of all country values.";
+			d3.select(".stat-description")
+				.html(txt);
+		})
+		.on("mouseout",function(){
+			d3.select(".stat-description")
+				.html("");
+		})
+		.on("click",function(){
+			d3.select("#question-container")
+				.html("")
+				.classed("hide",true);
+			d3.select("svg").remove();
+
+			d3.select("#footer")
+				.classed("hide",false);
+
+
+			//set_footer();
+			$("#timeline").slider().slider('setValue',1990);
+			set_svg();
+
+			set_chart_tabs();
+
+			var sp = d3.select(".scatterplot-tab");
+			sp.select("path").classed("hide",true);
+			sp.select("rect").classed("hide",true);
+			sp.select("text").classed("hide",true);
+
+			set_axes();
+			set_timeline();
+
+			$.post("/retrievecountries")
+			.done(function(countries){
+				set_countrymenu(countries);
+
+				d3.select("#" + region).classed("highlight-lock",true);
+
+				d3.selectAll(".ctr-entry:not(.entry-" + region + ")")
+					.classed("hide",true);
+
+				d3.selectAll(".entry-" + region)
+					//.classed("isolated",true)
+					.classed("highlight-lock",true);
+					//.classed("original-isolation",true);
+
+				d3.select(".zoom-menu")
+					.classed("hide",true);
+
+				/*d3.select(".stat-menu")
+					.classed("hide",true);*/
+
+				d3.select(".show-mean")
+					.classed("active",false);
+
+				set_bubbles(553,indicator,1990,true,null,region);
+
+			});
+		});
+
+	var stat_description = container.append("div")
+		.attr("class","stat-description");
+}
+
+function go_to_stage3(prevans){
+	d3.select("svg").remove();
+
+	d3.select("#footer")
+		.style("opacity",null)
+		.classed("hide",true);
+
+	d3.select("#container")
+		.classed("hide",true);
+
+	var container = d3.select("#question-container")
+		.html("")
+		.classed("hide",false);
+
+	/*var question = container.append("h1")
+		.attr("class","minor quesiton")
+		.html(function(){
+			if(prevans === true){
+				return "Finally, what factors might have influenced this achievement, in order keep making the world a better place?";
+			}else{
+				return "Finally, it is important to identify what factors might help reach this target in the future?";
+			}
+		});*/
+
+
+	return $.post("/retrieveindicators")
+	.done(function(series){
+		series = d3.nest()
+			.key(function(d){ return d.GoalName; }).sortKeys(d3.ascending)
+			.key(function(d){ return d.TargetName }).sortKeys(d3.ascending)
+			.entries(series);
+
+		var container = d3.select("#question-container")
+				.classed("hide",false);
+
+		container.append("h1")
+			.attr("class","minor quesiton")
+			.html(function(){
+				if(prevans === true){
+					return "So, how can we, the people, continue to make the world a better place using data? Well, we can look for predictive relationships (correlations) between indicators that can inform decision-makers on possible strategies to adopt, and we can share and discuss them <em>e.g.,</em> on twitter to raise public awareness.";
+				}else{
+					return "So, how can we, the people, make the world a better place? Well, we can look for predictive relationships (correlations) between indicators that can inform decision-makers on possible strategies to adopt, and we can share and discuss them <em>e.g.,</em> on twitter to raise public awareness.";
+				}
+			});
+
+		var headers = container.append("div")
+			.attr("class","picker headers");
+
+		var headers_data = ["High level goals", "Targets", "Indicators for measuring achivement"];
+
+		var header_cells = headers.selectAll(".header-cell")
+			.data(headers_data)
+		.enter()
+			.append("div")
+			.attr("class","header-cell")
+			.html(function(d){ return d; });
+
+		var fo_body = container.append("div")
+			.attr("class","fo-body picker original");
+
+		var goals = fo_body.append("div")
+			.attr("class","series-list list-goals")
+		.append("ul")
+			.attr("class","series-list-container-l1");
+
+			
+		var goals_entries = goals.selectAll("li.goal")
+			.data(series);
+
+		goals_entries.enter()
+			.append("li")
+			.attr("class","series goal")
+			.html(function(d){ 
+				if(d.key.indexOf("Goal 1.") !== -1){
+					var icon = "fa-money";
+				}else if(d.key.indexOf("Goal 2.") !== -1){
+					var icon = "fa-graduation-cap";
+				}else if(d.key.indexOf("Goal 3.") !== -1){
+					var icon = "fa-venus-mars";
+				}else if(d.key.indexOf("Goal 4.") !== -1){
+					var icon = "fa-child";
+				}else if(d.key.indexOf("Goal 5.") !== -1){
+					var icon = "fa-hospital-o";
+				}else if(d.key.indexOf("Goal 6.") !== -1){
+					var icon = "fa-medkit";
+				}else if(d.key.indexOf("Goal 7.") !== -1){
+					var icon = "fa-leaf";
+				}else if(d.key.indexOf("Goal 8.") !== -1){
+					var icon = "fa-globe";
+				}
+
+				var text = d.key.split(". ")[1];
+
+				return "<table><tr><td><i class='fa " + icon + "'></i></td><td>" + text + "?</td><td><i class='fa fa-angle-right'></i></td></tr></table>" 
+			})
+			.on("mouseover",function(d,i){
+
+				var parent = d3.select(this),
+					target_data = d.values;
+
+				d3.selectAll("li.series.goal").classed("active",false);
+				parent.classed("active",true);
+
+				rm(".list-targets");
+				rm(".list-series");
+
+
+				var targets = fo_body.append("div")
+						.attr("class","series-list list-targets")
+					.append("ul")
+						.attr("class","series-list-container-l2");
+				var targets_entries = targets.selectAll("li.target")
+						.data(target_data);
+				targets_entries.enter()
+					.append("li")
+					.attr("class","series target")
+					.html(function(c){ 
+						var text = c.key.split(": ")[1];
+						return "<table><tr><td>" + text + "</td><td><i class='fa fa-angle-right'></i></td></tr></table>"; 
+					})
+					.on("mouseover",function(c,j){
+
+						var parent = d3.select(this),
+							indicator_data = c.values;
+
+						d3.selectAll("li.series.target").classed("active",false);
+						parent.classed("active",true);
+
+						rm(".list-series");
+
+						var indicators = fo_body.append("div")
+								.attr("class","series-list list-series")
+							.append("ul")
+								.attr("class","series-list-container-l3")
+						var indicators_entries = indicators.selectAll("li.series")
+								.data(indicator_data);
+						indicators_entries.enter()
+							.append("li")
+							.attr("class","series indicator")
+							.html(function(b){
+								return b.SeriesName; // + " " + b.IsMdg;
+							})
+							.on("mouseover",function(){
+								var parent = d3.select(this);
+								d3.selectAll("li.series.indicator").classed("active",false);
+								parent.classed("active",true);
+							})
+							.on("mouseout",function(){
+								var parent = d3.select(this);
+								parent.classed("active",false);
+							})
+							.on("click",function(b){
+								/*container.append("i")
+									.attr("class","fa fa-arrow-down");*/
+								set_second_question(b.SeriesRowId);
+							});
+						
+					})
+					.on("click",function(){
+						return d3.event.stopPropagation();
+					});
+			})
+			.on("click",function(){
+				return d3.event.stopPropagation();
+			});
+
+	});
+
 }

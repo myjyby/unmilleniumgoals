@@ -618,20 +618,26 @@ function play_timeline(timestep,setquestion){
 					.html("&#9658;");
 
 				setTimeout(function(){
-					if(setquestion){
+					if(setquestion === 1){
 						set_response_field(0);
+					}else if(setquestion > 1){
+						set_response_field(3);
 					}
 				},_main_transition.duration);
 			};
 			$("#timeline").slider().slider('setValue',year);
 			var x_series = d3.select(".x-label").datum().SeriesRowId,
 				y_series = d3.select(".y-label").datum().SeriesRowId;
+
 			//set_bubbles(x_series,y_series,year,"slow");
 			if(!timestep){
 				update_bubble_classes(year);
 				update_scales(year);
 				update_bubbles(year,"slow");
-				if(type === "lg"){
+				
+				if(type === "sp"){
+					update_correlation_line();
+				}else if(type === "lg"){
 					update_stat_line("mean");
 					update_stat_line("median");
 				}
@@ -641,7 +647,9 @@ function play_timeline(timestep,setquestion){
 				//update_scales(year,timestep);
 				//update_bubbles_notransition(year,"slow",timestep);
 				update_bubbles(year,"slow",timestep);
-				if(type === "lg"){
+				if(type === "sp"){
+					update_correlation_line();
+				}else if(type === "lg"){
 					update_stat_line("mean",timestep);
 					update_stat_line("median",timestep);
 				}
@@ -872,10 +880,13 @@ function check_variability_menu(){
 
 
 function get_stat_origindata(stat){
-	var data = d3.selectAll(".main-bubble:not(.missing-data)").data();
+	var data = d3.selectAll(".main-bubble").data();
 	data = data.map(function(d,i){
 		return d.y;
 	});
+	data = data.filter(function(d){
+		return d[0] !== "NA";
+	})
 	if(stat === "mean"){
 		return d3.mean(data,function(d){ return d[0]; });
 	}else if(stat === "median"){
@@ -1020,4 +1031,204 @@ function estimate_soloed_countries_achievement_proba(answer,value,trend,descript
 		return false;
 	}*/
 
+}
+
+
+function estimate_soloed_regions_achievement(answer,stat){
+	var bubbles = d3.selectAll(".bubble"),
+		svg = d3.select("svg");
+	
+	var data = bubbles.data(),
+		y_values = data[0].y;
+		target = y_values[0]/2,
+		not_null = get_notnull_years(data),
+		last_data_available = data[0].x[not_null[not_null.length-1]];
+
+	var targetId = d3.select(".y-label").datum().TargetId,
+		dividende = 1;
+
+	var ydata = data.slice(0);
+	ydata = ydata.map(function(d){
+		return d.y;
+	});
+
+	var all_stats = new Array();
+	for(var j=0; j<26; j++){
+		if(stat === "mean"){
+			all_stats.push(d3.mean(ydata,function(d){ return d[j]; }));
+		}else if(stat === "median"){
+			all_stats.push(d3.median(ydata,function(d){ return d[j]; }));
+		}
+	}
+
+	if([1,2,10].indexOf(targetId) !== -1){
+		dividende = 2;
+	}else if(target === 5){
+		dividende = 3;
+	}else if(target === 6){
+		dividende = 4;
+	}
+
+	var target_val = get_stat_origindata(stat)/dividende;
+
+	all_stats = all_stats.map(function(d){
+		var diff = d - target_val;
+		if(d !== undefined){
+			if(diff >= 0){
+				return false;
+			}else{
+				return true;
+			}
+		}else{
+			return false;
+		}
+	});
+
+	var intersect = all_stats.indexOf(true),
+		text = "The <em>" + data[0].region_name + "</em> area had not reached its target by " + last_data_available + ", when data was last available.";
+
+	if(intersect !== -1){
+		var year = intersect + 1990;
+		$("#timeline").slider().slider('setValue',year);
+		update_bubble_classes(year);
+		update_bubbles(year,"slow");
+		
+		update_stat_line(stat);
+
+		text = "The <em>" + data[0].region_name + "</em> area reached its target for the first time in " + year + ".";
+	}
+
+	if(answer === true && intersect !== -1 || answer === false && intersect === -1){
+		var final_text = "<strong>Correct!</strong> <br>" + text;
+	}else{
+		var final_text = "<strong>Inorrect.</strong> <br>" + text;
+	}
+
+
+	feedback_fo = svg.append("foreignObject")
+		.attr("class","textual-feedback")
+		.attr("width", _chart.width/2)
+		.attr("height", _chart.height/2)
+		.attr("x", _svg.hpadding + _chart.width/2)
+		.attr("y", 0);
+
+	var feedback_fo_body = feedback_fo.append("xhtml:body")
+		.attr("class","fo-body textual-feedback-body")
+	.append("div")
+		.attr("class","lock-bottom")
+		.html(final_text);
+
+	if(intersect !== -1){
+		return true;
+	}else{
+		return false;
+	}
+
+}
+
+/*function leastSquares(xSeries, ySeries) {
+	// ---- Based on http://bl.ocks.org/benvandyke/8459843
+	var reduceSumFunc = function(prev, cur) { return prev + cur; };
+
+	// ---- This is actually the mean ---- //
+	var xBar = xSeries.reduce(reduceSumFunc) * 1.0 / xSeries.length;
+	var yBar = ySeries.reduce(reduceSumFunc) * 1.0 / ySeries.length;
+
+	var ssXX = xSeries.map(function(d) { return Math.pow(d - xBar, 2); })
+		.reduce(reduceSumFunc);
+
+	var ssYY = ySeries.map(function(d) { return Math.pow(d - yBar, 2); })
+		.reduce(reduceSumFunc);
+		
+	var ssXY = xSeries.map(function(d, i) { return (d - xBar) * (ySeries[i] - yBar); })
+		.reduce(reduceSumFunc);
+		
+	var slope = ssXY / ssXX;
+	var intercept = yBar - (xBar * slope);
+	var rSquare = Math.pow(ssXY, 2) / (ssXX * ssYY);
+	var pearson = ssXY/Math.sqrt(ssXX*ssYY);
+
+	return [slope, intercept, rSquare, pearson];
+}
+
+function get_correlation(){
+	var svg = d3.select("svg"),
+		data = d3.selectAll(".bubble").data(),
+		date = check_date() - 1990;
+
+	var x_vector = new Array(),
+		y_vector = new Array();
+
+	data.forEach(function(d){
+		if(d.x[date] !== "NA" && d.y[date] !== "NA"){
+			x_vector.push(d.x[date]);
+			y_vector.push(d.y[date]);
+		}
+	});
+
+
+
+	var leastSquaresCoeff = leastSquares(x_vector, y_vector);
+	//console.log(actual_leastSquaresCoeff)
+	// ---- Draw the trendline ---- //
+	var gx1 = d3.min(x_vector),
+		gy1 = leastSquaresCoeff[0] * d3.min(x_vector) + leastSquaresCoeff[1],
+		gx2 = d3.max(x_vector),
+		gy2 = leastSquaresCoeff[0] * d3.max(x_vector) + leastSquaresCoeff[1];
+
+	var line_data = [
+		{ x1: _xscale(gx1), x2: _xscale(gx2), y1: _yscale(gy1), y2: _yscale(gy2) }
+	]
+
+	console.log(leastSquaresCoeff)
+
+	return line_data;
+}*/
+
+function calcCORRELATION(data,date){
+	// ---- Based on https://www.mathsisfun.com/data/correlation.html
+	// ---- Get all values for X dimension ---- //
+	data = data.filter(function(d){
+		return d.x[date] !== "NA" && d.y[date] !== "NA";
+	})
+
+	var x_values = data.map(function(d){
+		return d.x[date];
+	})
+	// ---- Get all values for Y dimension ---- //
+	var y_values = data.map(function(d){
+		return d.y[date];
+	})
+
+	console.log(x_values)
+
+	var x_mean = d3.mean(x_values,function(d){ return +d; }),
+		y_mean = d3.mean(y_values,function(d){ return +d; });
+
+	var a = new Array(),
+		b = new Array();
+
+	x_values.forEach(function(d){
+		a.push(+d - x_mean);
+		return;
+	});
+
+	y_values.forEach(function(d){
+		b.push(+d - y_mean);
+		return;
+	});
+
+	var a_sq = new Array(),
+		b_sq = new Array(),
+		axb = new Array();
+	for(var i=0; i<a.length; i++){
+		axb.push(a[i] * b[i]);
+		a_sq.push(a[i] * a[i]);
+		b_sq.push(b[i] * b[i]);
+	}
+	var sum_axb = d3.sum(axb),
+		sum_a_sq = d3.sum(a_sq),
+		sum_b_sq = d3.sum(b_sq);
+	var correlation = sum_axb/(Math.sqrt(sum_a_sq*sum_b_sq));
+	return correlation;
 }

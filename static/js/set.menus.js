@@ -599,6 +599,7 @@ function set_countrymenu(countries){
 								.classed("fa fa-bullseye",true);*/
 							if(type === "sp"){
 								d3.select(".zoom-menu").classed("hide",false);	
+								update_correlation_line();
 							}else if(type === "lg"){
 								d3.select(".zoom-menu").classed("hide",true);
 								// CHECK HERE IF STAT IS ACTIVE
@@ -1088,7 +1089,7 @@ function set_stat_buttons(){
 		.attr("class","stat-menu");
 
 	stat_menu.append("div")
-		.attr("class","show-mean")
+		.attr("class","show-mean active")
 		.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Mean")
 		.on("mousedown",function(){
 
@@ -1097,10 +1098,14 @@ function set_stat_buttons(){
 
 		})
 		.on("click",function(){
+			var node = d3.select(this);
+			if(node.classed("lock") === false){
+
+			}
 		});
 
 	stat_menu.append("div")
-		.attr("class","show-median")
+		.attr("class","show-median active")
 		.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Median")
 		.on("mousedown",function(){
 
@@ -1109,6 +1114,10 @@ function set_stat_buttons(){
 
 		})
 		.on("click",function(){
+			var node = d3.select(this);
+			if(node.classed("lock") === false){
+				
+			}
 		});
 
 }

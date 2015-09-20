@@ -56,7 +56,7 @@ h1.major{
 h1.minor{
 	font-weight: 300;
 	letter-spacing: 1px;
-	font-size: 42px;
+	font-size: 36px;
 	text-transform: uppercase;
 	color: #333;
 	padding-left: 100px;
@@ -315,7 +315,7 @@ h2.goal-opt{
 	width: -o-calc(100% - 25px);
 	width: -ms-calc(100% - 25px);
 	/*position: relative;*/
-	overflow: visible;
+	overflow: auto;
 }
 
 .stat-picker{
@@ -336,6 +336,12 @@ h2.goal-opt{
 	width: calc(100% - 2px);
 	border: 1px solid #FFF;
 }*/
+
+.stat-menu-container{
+	width: 225px;
+	margin-top: 25px;
+	margin-left: 100px;
+}
 
 .stat-menu{
 	height: 30px;
@@ -368,6 +374,34 @@ h2.goal-opt{
 	text-align: center;
 	line-height: 30px;
 	cursor: pointer;
+}
+
+.stat-menu .show-mean.active, .stat-menu .show-median.active{
+	background-color: #333;
+	color: #FFF;
+	cursor: pointer;
+}
+
+.stat-menu.lock .show-mean, .stat-menu .show-median{
+	cursor: default;
+}
+
+
+.stat-menu:not(.lock) .show-mean:hover, .stat-menu:not(.lock) .show-median:hover, .stat-menu:not(.lock) .show-mean:hover i.fa, .stat-menu:not(.lock) .show-median:hover i.fa{
+	background-color: #333;
+	color: #FFF;
+	cursor: pointer;
+}
+
+.stat-menu .show-mean.active{
+	border-right: 1px solid #c5c2b8;
+}
+
+.stat-description{
+	width: calc(50% - 100px);
+	margin-left: 100px;
+	font-size: 18px;
+	margin-top: 30px;
 }
 
 .country-picker .zoom-menu{
@@ -440,11 +474,11 @@ h2.goal-opt{
 }
 
 .ctr-list-menu{
-	height: calc(100% - 137px);
-	height: -webkit-calc(100% - 137px);
-	height: -moz-calc(100% - 137px);
-	height: -o-calc(100% - 137px);
-	height: -ms-calc(100% - 137px);
+	height: calc(100% - 147px);
+	height: -webkit-calc(100% - 147px);
+	height: -moz-calc(100% - 147px);
+	height: -o-calc(100% - 147px);
+	height: -ms-calc(100% - 147px);
 	margin-top: 10px;
 	width: 100%;
 	overflow: auto;
@@ -814,4 +848,9 @@ h2.goal-opt{
 
 .force-white i.fa{
 	color: #FFF !important;
+}
+
+.question-box{
+	/*z-index: 100;*/
+	position: relative;
 }

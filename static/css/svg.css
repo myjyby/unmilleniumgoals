@@ -557,3 +557,9 @@ foreignObject{
 	stroke: none;
 
 }
+
+.correlation-line{
+	stroke: #FFF;
+	stroke-width: 2;
+	fill: none;
+}

@@ -144,3 +144,7 @@ function rm_goal_line(){
 function rm_stat_lines(){
 	return d3.selectAll(".stat").remove();
 }
+
+function rm_correlation_line(){
+	return d3.selectAll(".correlation").remove();
+}

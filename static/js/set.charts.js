@@ -201,7 +201,7 @@ function update_axes(x_label,x_series,x_goal,y_label,y_series,y_goal,duration,x_
 	return;
 }
 
-function set_bubbles(x_series,y_series,date,soloed){
+function set_bubbles(x_series,y_series,date,issoloed,sctr,sregion){
 
 	var svg = d3.select("#canvas"),
 		variability_x = null,
@@ -215,13 +215,25 @@ function set_bubbles(x_series,y_series,date,soloed){
 	rm_force_countrylabel(d3.selectAll(".bubble:not(.highlight-lock)"));
 	rm_goal_line();
 	rm_stat_lines();
+	rm_correlation_line();
+
+	if(!sctr && !sregion){
+		var parameters = { column: "SeriesRowId", value: [x_series,y_series], date: date };
+	}else if(sctr && !sregion){
+		var parameters = { column: "SeriesRowId", value: [x_series,y_series], date: date, ctr: sctr };
+	}else if(!sctr  && sregion){
+		var parameters = { column: "SeriesRowId", value: [x_series,y_series], date: date, region: sregion};
+	}else{
+		var parameters = { column: "SeriesRowId", value: [x_series,y_series], date: date, ctr: sctr, region: sregion};
+	}
 
 	return $.post("/retrieveseries", 
-		$.param({ column: "SeriesRowId", value: [x_series,y_series], date: date }, true)
+		$.param(parameters, true)
 		)
 	.done(function(data){
 		// ---- REMOVE THE LOADER ICON ---- //
 		rm_big_feedback_icon();
+		console.log(data)
 
 		var isolationId = check_isolation(),
 			type = get_chart_type();
@@ -700,7 +712,7 @@ function set_bubbles(x_series,y_series,date,soloed){
 
 
 		/* ---- SET THE UNCERTAINTY ---- */
-		check_variability(date,variability_x,variability_y,series_x,series_y,x_series,y_series,xs,ys,soloed);
+		check_variability(date,variability_x,variability_y,series_x,series_y,x_series,y_series,xs,ys,issoloed);
 
 		//update_bubbles(date,slider);
 
@@ -1875,7 +1887,7 @@ function update_bubbles_notransition(date,slider){
 			});
 }
 
-function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_extent,y_extent,soloed){
+function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_extent,y_extent,issoloed){
 	/* ---- NEED TO LOAD THE DATA HERE ---- */
 	var date = check_date(),
 		type = get_chart_type(),
@@ -2803,19 +2815,30 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 
 		//d3.select(".variability-menu").html("Hide Disparity")
 
-		if(type === "lg"){
+		if(type === "sp"){
+
+			//if(!isolationId){
+				set_correlation_line();
+			//}
+
+		}else if(type === "lg"){
 			if(!isolationId){
 				update_bubble_classes(date);
-				var mean = get_stat_origindata("mean");
-				set_goal_line(mean,series_y.target);
-				var median = get_stat_origindata("median");
-				set_goal_line(median,series_y.target);
+				var mean = get_stat_origindata("mean"),
+					median = get_stat_origindata("median");
+				
+				//alert(d3.select(".show-median").classed("active"))
 
-				set_stat_line("mean");
-				update_stat_line("mean");
-
-				set_stat_line("median");
-				update_stat_line("median");
+				if(d3.select(".show-mean").classed("active") === true){
+					set_goal_line(mean,series_y.target,"mean");
+					set_stat_line("mean");
+					update_stat_line("mean");
+				}
+				if(d3.select(".show-median").classed("active") === true){
+					set_goal_line(median,series_y.target,"median");
+					set_stat_line("median");
+					update_stat_line("median");
+				}
 			}else{
 				//console.log(d3.selectAll(".main-bubble"));
 				// REDO HERE SET THE TARGET LINE FOR SINGLE COUNTRY BASED ON data.y[0] / 2 (data FOR 1990/2 IF AVAILABLE FOR 1990)
@@ -2826,6 +2849,7 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 				set_goal_line(datum.y[0],series_y.target);
 			}
 		}
+
 		
 		if(inactives.length > 0){
 			update_scales(date);
@@ -2840,41 +2864,56 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 		//console.log(series_x)
 		update_axes(series_x.name,x_series,series_x.goal,series_y.name,y_series,series_y.goal,null,series_x.target,series_y.target);
 		update_bubbles(date,null);
+
 	}
 
-	if(soloed){
+	if(issoloed){
 		d3.select("button.x-label").classed("hide",true);
-
-		d3.selectAll(".main-bubble:not(.bubble-" + soloed + ")")
-			.each(function(){
-				d3.select(this.parentNode).classed("hide",true);
-			});
-		d3.select(d3.select(".bubble-" + soloed).node().parentNode)
+			
+		d3.selectAll(".bubble")
 			.classed("highlight-lock",true)
 			.classed("soloed",true)
 			.moveToFront();
 
-		// ---- PLAY THE TIMELINE ---- //
-		if(type === "lg" && date === 1990){
-			setTimeout(function(){
-				d3.select(".bubble-" + soloed).node()["__onmouseover"]();
-				return play_timeline(_main_transition.fast_duration,"question");
-			},_main_transition.fast_duration);
-		}
-
+			// ---- PLAY THE TIMELINE ---- //
+			if(type === "lg" && date === 1990){
+				setTimeout(function(){
+					var bubble_len = d3.selectAll(".bubble")[0].length;
+					if(bubble_len < 10){
+						d3.selectAll(".main-bubble")
+							.each(function(){
+								return this["__onmouseover"]();
+							});
+					}
+					return play_timeline(_main_transition.fast_duration,bubble_len);
+				},_main_transition.fast_duration);
+			}
+		
 		// ---- LOCK THE INTERACTIVE FEATURES ---- //
+		var bubble_len = d3.selectAll(".bubble")[0].length;
+
 		d3.select(".x.axis foreignObject").classed("lock",true);
 		d3.select(".y.axis foreignObject").classed("lock",true);
-		d3.select("#timeline").classed("lock",true);
 		d3.select(".map-menu").classed("lock",true);
+		d3.select(".stat-menu").classed("lock",true);
+
+		if(bubble_len === 1){
+			d3.select("#timeline").classed("lock",true);
+		}else{
+			d3.select("#timeline").classed("lock",false);
+		}
 		/*var lg = d3.select(".line-graph-tab")
 				.classed("inactive",false);*/
 
 		/*setTimeout(function(){
 			//d3.select(".line-graph-tab")[0][0]["__onclick"]();
-			d3.select(".bubble-" + soloed).node()["__onmouseover"]();
+			d3.select(".bubble-" + sctr).node()["__onmouseover"]();
 		},_main_transition.duration)*/
 	}else{
+		d3.select(".x.axis foreignObject").classed("lock",false);
+		d3.select(".y.axis foreignObject").classed("lock",false);
+		d3.select(".map-menu").classed("lock",false);
+
 		d3.selectAll(".soloed").classed("soloed",false);
 		d3.select("#timeline").classed("lock",false);
 		update_bubble_classes(date);
@@ -3150,7 +3189,10 @@ function set_timeline(animation_steps){
 			update_scales(year);
 			update_bubbles(year,"null_duration");
 
-			if(type === "lg" && isolationId === undefined){
+			
+			if(type === "sp"){
+				update_correlation_line();
+			}else if(type === "lg" && isolationId === undefined){
 				update_stat_line("mean",0,year-1990);
 				update_stat_line("median",0,year-1990);
 			}
@@ -3176,7 +3218,9 @@ function set_timeline(animation_steps){
 			update_scales(year);
 			update_bubbles(year,"slow");
 
-			if(type === "lg" && isolationId === undefined){
+			if(type === "sp"){
+				update_correlation_line();
+			}else if(type === "lg" && isolationId === undefined){
 				update_stat_line("mean",null,year-1990);
 				update_stat_line("median",null,year-1990);
 			}
@@ -3185,7 +3229,7 @@ function set_timeline(animation_steps){
 				.html("&#9658;");
 			clearInterval(_play_interval);
 		}else{
-			var bubble_data = d3.select(".bubble.soloed").datum(),
+			var bubble_data = d3.select(".bubble").datum(),
 				year = bubble_data.x[bubble_data.x.length-1];
 			$("#timeline").slider().slider('setValue',year);
 		}
@@ -3225,10 +3269,11 @@ function update_timeline(null_years){
 			});
 }
 
-function set_goal_line(originvalue,target){
+function set_goal_line(originvalue,target,label){
 	//console.log(originvalue)
 	var svg = d3.select("svg");
 
+	//console.log(originvalue)
 	// PB IF THE ORIGIN VALUE === "NA"
 
 	var dividende = 1,
@@ -3236,13 +3281,13 @@ function set_goal_line(originvalue,target){
 
 	if([1,2,10].indexOf(target) !== -1){
 		dividende = 2;
-		description = "halve (by 2015).";
+		description = "halve (by 2015)";
 	}else if(target === 5){
 		dividende = 3;
-		description = "reduce by two-thirds (by 2015).";
+		description = "reduce by two-thirds (by 2015)";
 	}else if(target === 6){
 		dividende = 4;
-		description = "reduce by three-quarters (by 2015).";
+		description = "reduce by three-quarters (by 2015)";
 	}
 
 	target_g = svg.append("g")
@@ -3275,7 +3320,13 @@ function set_goal_line(originvalue,target){
 		.attr("x",5)
 		//.attr("y", _yscale(originvalue/dividende) + 20)
 		.attr("y", 20)
-		.text("Target: " + description);
+		.text(function(){
+			if(label){
+				return "Target: " + description + " [" + label + "]";
+			}else{
+				return "Target: " + description + ".";
+			}
+		});
 
 	target_g.transition()
 		.duration(_main_transition.duration)
@@ -3303,24 +3354,32 @@ function set_stat_line(stat){
 		.attr("x2",	_chart.width)
 		.attr("y2", 0);
 
-	stat_g.append("text")
+	var text = stat_g.append("text")
 		.attr("class","stat-text")
 		.attr("x",5)
 		.attr("y", 20)
-		.text("General " + stat); // NEED TO DO FOR COUNTRIES SELECTED
+		.text("General " + stat); 
+
+	var bbox = text.node().getBBox();
+
+	stat_g.insert("rect",".stat-line")
+		.attr("class","target-bg-salience")
+		.attr("width",bbox.width + 10)
+		.attr("height",bbox.height + 10);
 }
 
 function update_stat_line(stat,duration,date){
-	var data = d3.selectAll(".main-bubble:not(.missing-data)").data();
+	var data = d3.selectAll(".bubble:not(.hide)").data();
 	
 	if(!date){
 		var year = check_date(),
 			date = year - 1990;
 	}
 
-
 	data = data.map(function(d,i){
 		return d.y;
+	}).filter(function(d){
+		return d[date] !== "NA";
 	});
 
 	if(stat === "mean"){
@@ -3341,6 +3400,105 @@ function update_stat_line(stat,duration,date){
 		})
 		.ease(_main_transition.ease)
 		.attr("transform","translate(" + [_svg.hpadding,_yscale(value) + _svg.vpadding/2] + ")")
+}
+
+function set_correlation_line(){
+	var svg = d3.select("svg"),
+		data = d3.selectAll(".bubble").data(),
+		date = check_date() - 1990;
+
+	var corr_data = data.slice(0);
+
+	data = data.map(function(d){
+		return [d.x[date],d.y[date]];
+	});
+
+	data = data.filter(function(d){
+		return d.indexOf("NA") === -1;
+	});
+
+	var xmax = _xscale.domain()[1];
+
+	var reg = regression('linear', data),
+		eq = reg.equation;
+
+	var py1 = +eq[1],
+		py2 = +eq[0] * xmax + eq[1];
+
+
+	var correlation = Math.round(calcCORRELATION(corr_data,date)*100)/100;
+
+	stat_g = svg.append("g")
+		.attr("class","correlation")
+		.attr("transform","translate(" + [_svg.hpadding,_svg.vpadding/2] + ")");
+
+	/*stat_g.append("rect")
+		.attr("class","target-bg-salience")
+		.attr("width",_chart.width)
+		.attr("height",8)
+		.attr("y",-4);*/
+
+	stat_g.append("line")
+		.attr("class","stat-line")
+		.attr("x1", 0)
+		.attr("y1", _yscale(py1))
+		.attr("x2",	_chart.width)
+		.attr("y2", _yscale(py2));
+
+	stat_g.append("text")
+		.attr("class","stat-text")
+		.attr("x",5)
+		.attr("y", 20)
+		.text("Correlation: " + correlation);
+}
+
+function update_correlation_line(){
+	var svg = d3.select("svg"),
+		data = d3.selectAll(".bubble").data(),
+		date = check_date() - 1990;
+
+	var corr_data = data.slice(0);
+
+	data = data.map(function(d){
+		return [d.x[date],d.y[date]];
+	});
+
+	data = data.filter(function(d){
+		return d.indexOf("NA") === -1;
+	});
+
+	var xmax = _xscale.domain()[1];
+
+	var reg = regression('linear', data),
+		eq = reg.equation;
+
+	var py1 = +eq[1],
+		py2 = +eq[0] * xmax + eq[1];
+
+
+	var correlation = Math.round(calcCORRELATION(corr_data,date)*100)/100;
+
+	stat_g = svg.select(".correlation");
+
+	/*stat_g.append("rect")
+		.attr("class","target-bg-salience")
+		.attr("width",_chart.width)
+		.attr("height",8)
+		.attr("y",-4);*/
+
+	stat_g.select("line")
+		.transition()
+		.duration(_main_transition.duration)
+		.ease(_main_transition.ease)
+		.attr("x1", 0)
+		.attr("y1", _yscale(py1))
+		.attr("x2",	_chart.width)
+		.attr("y2", _yscale(py2));
+
+	stat_g.select("text")
+		.attr("x",5)
+		.attr("y", 20)
+		.text("Correlation: " + correlation);
 }
 
 function set_footer(){
