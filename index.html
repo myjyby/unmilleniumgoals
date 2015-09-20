@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>Is the world a better place?</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<script type="text/javascript" src="static/libs/d3.js"></script>
+	<script type="text/javascript" src="static/libs/jquery.js"></script>
+	<script type="text/javascript" src="static/libs/easing.js"></script>
+	<script type="text/javascript" src="static/libs/bootstrap.slider.js"></script>
+
+	<script type="text/javascript" src="static/js/public.variables.js"></script>
+	<script type="text/javascript" src="static/js/array.operators.js"></script>
+	<script type="text/javascript" src="static/js/clear.functions.js"></script>
+	<script type="text/javascript" src="static/js/general.functions.js"></script>
+	<script type="text/javascript" src="static/js/set.menus.js"></script>
+	<script type="text/javascript" src="static/js/set.charts.js"></script>
+	<script type="text/javascript" src="static/js/world.map.js"></script><script type="text/javascript" src="static/js/set.response.field.js"></script>
+
+	<script type="text/javascript" src="static/js/plot_description/nerdamer.core.js"></script> 
+	<script type="text/javascript" src="static/js/plot_description/Algebra.js"></script>
+	<script type="text/javascript" src="static/js/plot_description/Calculus.js"></script>
+	<script type="text/javascript" src="static/js/plot_description/Solve.js"></script>
+	<script type="text/javascript" src="static/js/regression.min.js"></script>
+	<script type="text/javascript" src="static/js/plot_description/plot.description.js"></script>
+
+	<!--<link href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css">-->
+	<link rel="stylesheet" type="text/css" href="static/css/main.css">
+	<link rel="stylesheet" type="text/css" href="static/css/svg.css">
+	<link rel="stylesheet" type="text/css" href="static/css/bootstrap.slider.css">
+	<link rel="stylesheet" type="text/css" href="static/css/font.awesome.min.css">
+</head>
+
+
+<body>
+
+	<div id="wraper">
+
+		<div id="header" class="center">
+			<i class="fa fa-globe"></i>
+			<h1 class="major">
+				Is the world a better place
+				<br/>
+				than it was in the beginning of the 90’s?
+				<br/>
+				<br/>
+			</h1>
+			<!--<i class="fa fa-arrow-down"></i>-->
+			<div class="session-labels">
+				<div class="s-label">Are you a new visitor?</div>
+				<div class="s-label">or a returning visitor?</div>
+			</div>
+			<div class="session-info">
+				<div class="session-btn btn-new-user" onclick="set_grand_tour();">Take the introductory tour</div>
+				<div class="session-btn btn-retruning-user" onclick="set_visualization_environment()">Go straight to the data</div>
+			</div>
+		</div>
+		<div id="question-container" class="hide"></div>
+		<div id="container" class="hide"></div>
+		<div id="footer" class="hide">
+			<!--<div id="play-btn">
+				<i class='fa fa-play'></i>
+			</div>
+			<div id="main-timeline">
+				<input id="timeline" type="text" />
+			</div>-->
+		</div>
+
+		<!--
+		<div id="header">
+			<h1 class="major">
+				Is the world a better place today?
+			</h1>
+		</div>
+		<div id="container"></div>
+		<div id="footer">
+		</div>
+		-->
+	</div>
+
+	<script type="text/javascript">
+		/*d3.select("#wraper")
+		.on("mousewheel",function(){
+			//d3.event.preventDefault();
+			d3.select(".fa-globe").classed("fa-spin",true);
+			set_first_question();
+		})*/
+
+		/*set_footer();
+		set_svg();
+
+		set_chart_tabs();
+		set_axes();
+		set_timeline();
+		$.post("/retrievecountries")
+		.done(function(countries){
+			set_countrymenu(countries);
+			set_bubbles(553,562,1990);
+			
+
+			// FOR TESTING BOUNDS
+			//set_bubbles(617,562,1990);
+			//set_bubbles(562,617,1990);
+			// FOR TESTING YOUTH GENDERS
+			//set_bubbles(758,556,1990);
+			// FOR TESTING NEGATIVE VALUES
+			//set_bubbles(757,562,1990);
+
+			//set_response_field();
+		});*/
+		
+
+		
+
+		
+
+
+	</script>
+
+</body>
+
+</html>

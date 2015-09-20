@@ -1,0 +1,2 @@
+CherryPy==3.8.0
+Pandas==0.16.2

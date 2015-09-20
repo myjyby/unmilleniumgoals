@@ -1,0 +1,559 @@
+.tick line, .axis .domain{
+	stroke: #333;
+	stroke-width: 1;
+	fill: none;
+}
+
+.tick line{
+	opacity: 0.33;
+}
+
+.tick:first-child line{
+	display: none;
+}
+
+.tick text{
+	font-size: 14px;
+}
+
+.bubble{
+	stroke: #333;
+	stroke-width: 2;
+	fill: #c5c2b8;
+	fill-opacity: 0.66;
+	cursor: pointer;
+}
+
+.bubble .missing-data{
+	/*fill: #95938c;
+	fill-opacity: 1;
+	stroke: none;*/
+}
+
+.bubble.contextual{
+	opacity: 0.16;
+}
+
+.ts.contextual{
+	opacity: 0.16;
+}
+
+path.bounds{
+	stroke: #333;
+	stroke-width: 1;
+	fill: #333;
+	fill-opacity: 1;
+}
+
+
+foreignObject{
+	overflow: hidden;
+}
+
+.ctr-label-text{
+	font-weight: 400;
+	fill: #000;
+	stroke: none;
+	fill-opacity: 1;
+	/*letter-spacing: 0.1em;*/
+}
+
+.ctr-label-contour{
+	fill-opacity: 1;
+}
+
+.map-menu rect{
+	stroke: #FFF;
+	fill: none;
+}
+
+.timeseries{
+	stroke: #9e4e40;
+	stroke-width: 2;
+	fill: none;
+}
+
+.region-picker #world-map g{
+	stroke: none;
+	/*stroke-opacity: 0.33;*/
+	fill: #333;
+	cursor: pointer;
+}
+
+.region-picker #world-map g.highlight-lock{
+	fill: #9e4e40;
+}
+
+.region-picker #world-map g.inactive{
+	fill: #95938c;
+	cursor: default;
+}
+
+.chart-tabs path{
+	stroke: #333;
+	fill: none;
+	/*stroke-opacity: 0.33;*/
+}
+
+.chart-tabs .inactive path, .chart-tabs line{
+	stroke: #333;
+	fill: none;
+	stroke-opacity: 1;
+}
+
+.chart-tabs text{
+	font-size: 20px;
+	text-transform: uppercase;
+	cursor: pointer;
+	fill: #333;
+	letter-spacing: 1px;
+}
+
+.chart-tabs .inactive text{
+	/*fill: grey;*/
+	font-weight: 700;
+	cursor: default;
+}
+
+.tab-bg-rect{
+	fill: #c5c2b8;
+	stroke: none;
+	cursor: pointer;
+}
+
+.inactive .tab-bg-rect{
+	fill: none;
+	stroke: none;
+	cursor: default;
+}
+
+
+/* ---- COUNTRY HIGHLIGHTS ---- */
+/* ---- BUBBLES ---- */
+.bubble.highlight, 
+.bubble.highlight-lock{
+	stroke: #9e4e40;
+	stroke-width: 2;
+	fill: #9e4e40;
+	fill-opacity: 0.66;
+}
+
+.bubble.developed.highlight, 
+.bubble.developed.highlight-lock{
+	stroke: #1f78b4;
+	stroke-width: 2;
+	fill: #1f78b4;
+	fill-opacity: 0.66;
+}
+
+.bubble.developed.highlight-lock .variability{
+	fill: #1f78b4;
+	stroke: #1f78b4;
+}
+
+.bubble.latinamerica.highlight, 
+.bubble.latinamerica.highlight-lock{
+	stroke: #b15928;
+	stroke-width: 2;
+	fill: #b15928;
+	fill-opacity: 0.66;
+}
+
+.bubble.latinamerica.highlight-lock .variability{
+	stroke: #b15928;
+	fill: #b15928;
+}
+
+.bubble.caribbean.highlight, 
+.bubble.caribbean.highlight-lock{
+	stroke: #fb9a99;
+	stroke-width: 2;
+	fill: #fb9a99;
+	fill-opacity: 0.66;
+}
+
+.bubble.caribbean.highlight-lock .variability{
+	stroke: #fb9a99;
+	fill: #fb9a99;
+}
+
+.bubble.subsaharanafrica.highlight, 
+.bubble.subsaharanafrica.highlight-lock{
+	stroke: #ff7f00;
+	stroke-width: 2;
+	fill: #ff7f00;
+	fill-opacity: 0.66;
+}
+
+.bubble.subsaharanafrica.highlight-lock .variability{
+	stroke: #ff7f00;
+	fill: #ff7f00;
+}
+
+.bubble.northernafrica.highlight, 
+.bubble.northernafrica.highlight-lock{
+	stroke: #ffff99;
+	stroke-width: 2;
+	fill: #ffff99;
+	fill-opacity: 0.66;
+}
+
+.bubble.northernafrica.highlight-lock .variability{
+	stroke: #ffff99;
+	fill: #ffff99;
+}
+
+.bubble.easternasia.highlight, 
+.bubble.easternasia.highlight-lock{
+	stroke: #e31a1c;
+	stroke-width: 2;
+	fill: #e31a1c;
+	fill-opacity: 0.66;
+}
+
+.bubble.easternasia.highlight-lock .variability{
+	stroke: #e31a1c;
+	fill: #e31a1c;
+}
+
+.bubble.westernasia.highlight, 
+.bubble.westernasia.highlight-lock{
+	stroke: #33a02c;
+	stroke-width: 2;
+	fill: #33a02c;
+	fill-opacity: 0.66;
+}
+
+.bubble.westernasia.highlight-lock .variability{
+	stroke: #33a02c;
+	fill: #33a02c;
+}
+
+.bubble.caucasusandcentralasia.highlight, 
+.bubble.caucasusandcentralasia.highlight-lock{
+	stroke: #b2df8a;
+	stroke-width: 2;
+	fill: #b2df8a;
+	fill-opacity: 0.66;
+}
+
+.bubble.caucasusandcentralasia.highlight-lock .variability{
+	stroke: #b2df8a;
+	fill: #b2df8a;
+}
+
+.bubble.southernasia.highlight, 
+.bubble.southernasia.highlight-lock{
+	stroke: #a6cee3;
+	stroke-width: 2;
+	fill: #a6cee3;
+	fill-opacity: 0.66;
+}
+
+.bubble.southernasia.highlight-lock .variability{
+	stroke: #a6cee3;
+	fill: #a6cee3;
+}
+
+.bubble.southeasternasia.highlight, 
+.bubble.southeasternasia.highlight-lock{
+	stroke: #cab2d6;
+	stroke-width: 2;
+	fill: #cab2d6;
+	fill-opacity: 0.66;
+}
+
+.bubble.southeasternasia.highlight-lock .variability{
+	stroke: #cab2d6;
+	fill: #cab2d6;
+}
+
+.bubble.oceania.highlight, 
+.bubble.oceania.highlight-lock{
+	stroke: #6a3d9a;
+	stroke-width: 2;
+	fill: #6a3d9a;
+	fill-opacity: 0.66;
+}
+
+.bubble.oceania.highlight-lock .variability{
+	stroke: #6a3d9a;
+	fill: #6a3d9a;
+}
+
+/* ---- LABELS ---- */
+.bubble.highlight .ctr-label-text, 
+.bubble.highlight-lock .ctr-label-text{
+	fill: #9e4e40;
+	fill-opacity: 1;
+}
+
+.bubble.highlight .ctr-label-contour, 
+.bubble.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.developed.highlight .ctr-label-text, 
+.bubble.developed.highlight-lock .ctr-label-text{
+	fill: #1f78b4;
+	fill-opacity: 1;
+}
+
+.bubble.developed.highlight .ctr-label-contour, 
+.bubble.developed.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.latinamerica.highlight .ctr-label-text, 
+.bubble.latinamerica.highlight-lock .ctr-label-text{
+	fill: #b15928;
+	fill-opacity: 1;
+}
+
+.bubble.latinamerica.highlight .ctr-label-contour, 
+.bubble.latinamerica.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.caribbean.highlight .ctr-label-text, 
+.bubble.caribbean.highlight-lock .ctr-label-text{
+	fill: #fb9a99;
+	fill-opacity: 1;
+}
+
+.bubble.caribbean.highlight .ctr-label-contour, 
+.bubble.caribbean.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.subsaharanafrica.highlight .ctr-label-text, 
+.bubble.subsaharanafrica.highlight-lock .ctr-label-text{
+	fill: #ff7f00;
+	fill-opacity: 1;
+}
+
+.bubble.subsaharanafrica.highlight .ctr-label-contour, 
+.bubble.subsaharanafrica.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.northernafrica.highlight .ctr-label-text, 
+.bubble.northernafrica.highlight-lock .ctr-label-text{
+	fill: #ffff99;
+	fill-opacity: 1;
+}
+
+.bubble.northernafrica.highlight .ctr-label-contour, 
+.bubble.northernafrica.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.easternasia.highlight .ctr-label-text, 
+.bubble.easternasia.highlight-lock .ctr-label-text{
+	fill: #e31a1c;
+	fill-opacity: 1;
+}
+
+.bubble.easternasia.highlight .ctr-label-contour, 
+.bubble.easternasia.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.westernasia.highlight .ctr-label-text, 
+.bubble.westernasia.highlight-lock .ctr-label-text{
+	fill: #33a02c;
+	fill-opacity: 1;
+}
+
+.bubble.westernasia.highlight .ctr-label-contour, 
+.bubble.westernasia.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.caucasusandcentralasia.highlight .ctr-label-text, 
+.bubble.caucasusandcentralasia.highlight-lock .ctr-label-text{
+	fill: #b2df8a;
+	fill-opacity: 1;
+}
+
+.bubble.caucasusandcentralasia.highlight .ctr-label-contour, 
+.bubble.caucasusandcentralasia.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.southernasia.highlight .ctr-label-text, 
+.bubble.southernasia.highlight-lock .ctr-label-text{
+	fill: #a6cee3;
+	fill-opacity: 1;
+}
+
+.bubble.southernasia.highlight .ctr-label-contour, 
+.bubble.southernasia.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.southeasternasia.highlight .ctr-label-text, 
+.bubble.southeasternasia.highlight-lock .ctr-label-text{
+	fill: #cab2d6;
+	fill-opacity: 1;
+}
+
+.bubble.southeasternasia.highlight .ctr-label-contour, 
+.bubble.southeasternasia.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+.bubble.oceania.highlight .ctr-label-text, 
+.bubble.oceania.highlight-lock .ctr-label-text{
+	fill: #6a3d9a;
+	fill-opacity: 1;
+}
+
+.bubble.oceania.highlight .ctr-label-contour, 
+.bubble.oceania.highlight-lock .ctr-label-contour{
+	fill: #c5c2b8;
+}
+
+/* ---- MAP ---- */
+.region-picker #world-map g#developed.highlight-lock{
+	fill: #1f78b4;
+}
+
+.region-picker #world-map g#latinamerica.highlight-lock{
+	fill: #b15928;
+}
+
+.region-picker #world-map g#caribbean.highlight-lock{
+	fill: #fb9a99;
+}
+
+.region-picker #world-map g#subsaharanafrica.highlight-lock{
+	fill: #ff7f00;
+}
+
+.region-picker #world-map g#northernafrica.highlight-lock{
+	fill: #ffff99;
+}
+
+.region-picker #world-map g#easternasia.highlight-lock{
+	fill: #e31a1c;
+}
+
+.region-picker #world-map g#westernasia.highlight-lock{
+	fill: #33a02c;
+}
+
+.region-picker #world-map g#caucasusandcentralasia.highlight-lock{
+	fill: #b2df8a;
+}
+
+.region-picker #world-map g#southernasia.highlight-lock{
+	fill: #a6cee3;
+}
+
+.region-picker #world-map g#southeasternasia.highlight-lock{
+	fill: #cab2d6;
+}
+
+.region-picker #world-map g#oceania.highlight-lock{
+	fill: #6a3d9a;
+}
+
+/* ---- LINE HIGHLIGHT ---- */
+
+.ts.no-highlight .timeseries{
+	stroke: #333 !important;
+	stroke-width: 1px !important;
+}
+
+.ts-developed .timeseries{
+	stroke: #1f78b4;
+}
+
+.ts-latinamerica .timeseries{
+	stroke: #b15928;
+}
+
+.ts-caribbean .timeseries{
+	stroke: #fb9a99;
+}
+
+.ts-subsaharanafrica .timeseries{
+	stroke: #ff7f00;
+}
+
+.ts-northernafrica .timeseries{
+	stroke: #ffff99;
+}
+
+.ts-easternasia .timeseries{
+	stroke: #e31a1c;
+}
+
+.ts-westernasia .timeseries{
+	stroke: #33a02c;
+}
+
+.ts-caucasusandcentralasia .timeseries{
+	stroke: #b2df8a;
+}
+
+.ts-southernasia .timeseries{
+	stroke: #a6cee3;
+}
+
+.ts-southeasternasia .timeseries{
+	stroke: #cab2d6;
+}
+
+.ts-oceania .timeseries{
+	stroke: #6a3d9a;
+}
+
+.err-bar circle{
+	/*fill: #c5c2b8;
+	stroke: #333;*/
+	/*fill-opacity: 0.66;*/
+}
+
+.disc-line{
+	stroke-width: 1;
+	fill: none !important;
+}
+
+.goal-line{
+	stroke: #FFF;
+	stroke-width: 3;
+}
+
+.target-val text{
+	fill: #FFF;
+	/*font-weight: 700;*/
+	font-size: 18px;
+}
+
+.stat-line{
+	stroke: #FFF;
+	stroke-width: 2;
+}
+
+.stat-text{
+	fill: #FFF;
+}
+
+.target-bg-salience{
+	fill: #c5c2b8;
+	fill-opacity: 0.75;
+}
+
+.annotation-arrow{
+	stroke: #333;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.arrow-head{
+	fill: #333;
+	stroke: none;
+
+}
