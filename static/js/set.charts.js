@@ -3449,7 +3449,7 @@ function set_correlation_line(){
 		.attr("class","stat-text")
 		.attr("x",5)
 		.attr("y", 20)
-		.text("Correlation: " + correlation);
+		.text("Correlation r = " + correlation);
 }
 
 function update_correlation_line(){

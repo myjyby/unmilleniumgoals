@@ -16,12 +16,18 @@ function set_grand_tour(){
 
 function set_visualization_environment(){
 	d3.select("#header").classed("center",false)
-		.html("<h1 class='major'>Is the world a better place today?");
+		.html("<h1 class='major'>Is the world a better place today?<span class='pull-right'><a href='https://twitter.com/share' data-via='myjyby' target='_blank' data-hashtags='isWBPT'><i class='fa fa-twitter'></i></a></span></h1>");
 	d3.select("#question-container").remove();
 	d3.select("#container")
 		.classed("hide",false);
 	d3.select("#footer")
 		.classed("hide",false);
+
+
+
+	// ---- TWITTER SCRIPT ---- //
+	!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+
 
 	set_footer();
 	set_svg();
@@ -44,7 +50,7 @@ function set_visualization_environment(){
 	set_axes();
 	set_timeline();
 
-	return $.post("/retrievecountries")
+	return $.post("retrievecountries")
 	.done(function(countries){
 		set_countrymenu(countries);
 		set_bubbles(553,562,1990);

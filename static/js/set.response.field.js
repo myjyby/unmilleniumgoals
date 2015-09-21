@@ -17,7 +17,7 @@ function set_first_question(){
 			//d3.event.preventDefault();
 		})*/
 
-	return $.post("/retrieveindicators")
+	return $.post("retrieveindicators")
 	.done(function(series){
 		series = d3.nest()
 			.key(function(d){ return d.GoalName; }).sortKeys(d3.ascending)
@@ -197,7 +197,7 @@ function set_second_question(seriesId){
 		.attr("class","minor quesiton in")
 		.html("In which part of the world, and in which country?");
 
-	return $.post("/retrievecountriesin1990",
+	return $.post("retrievecountriesin1990",
 		{ 'seriesId': seriesId }
 		)
 	.done(function(countries){
@@ -554,7 +554,7 @@ function set_region_picker(countries,seriesId){
 			set_axes();
 			set_timeline();
 
-			$.post("/retrievecountries")
+			$.post("retrievecountries")
 			.done(function(countries){
 				set_countrymenu(countries);
 
@@ -818,9 +818,9 @@ function set_response_field(qidx,prevans){
 			}else if(qidx === 3){
 				//alert("here")
 				if(d3.select(".show-mean").classed("active") === true){
-					var correct = estimate_soloed_regions_achievement(true,"mean");
+					var correct = estimate_soloed_regions_achievement(d.value,"mean");
 				}else if(d3.select(".show-median").classed("active") === true){
-					var correct = estimate_soloed_regions_achievement(true,"median");
+					var correct = estimate_soloed_regions_achievement(d.value,"median");
 				}
 				clear_and_go_next(2,correct);
 			}
@@ -937,7 +937,7 @@ function go_to_stage2(area,region,indicator){
 			set_axes();
 			set_timeline();
 
-			$.post("/retrievecountries")
+			$.post("retrievecountries")
 			.done(function(countries){
 				set_countrymenu(countries);
 
@@ -1002,7 +1002,7 @@ function go_to_stage2(area,region,indicator){
 			set_axes();
 			set_timeline();
 
-			$.post("/retrievecountries")
+			$.post("retrievecountries")
 			.done(function(countries){
 				set_countrymenu(countries);
 
@@ -1059,12 +1059,12 @@ function go_to_stage3(prevans){
 		});*/
 
 
-	return $.post("/retrieveindicators")
+	/*return $.post("retrieveindicators")
 	.done(function(series){
 		series = d3.nest()
 			.key(function(d){ return d.GoalName; }).sortKeys(d3.ascending)
 			.key(function(d){ return d.TargetName }).sortKeys(d3.ascending)
-			.entries(series);
+			.entries(series);*/
 
 		var container = d3.select("#question-container")
 				.classed("hide",false);
@@ -1079,7 +1079,60 @@ function go_to_stage3(prevans){
 				}
 			});
 
-		var headers = container.append("div")
+		var stat_description = container.append("div")
+			.attr("class","stat-description")
+			.html("<p>In statistics, the correlation coefficient <em>r</em> measures the strength and direction of a linear relationship between two variables on a scatterplot; this value is always between +1 and –1. However, if there is not at least somewhat of a linear relationship, the correlation does not mean much. In addition, a correlation does not imply causation, meaning there may be no causal relationship between correlated variables.</p>");
+
+			container.append("div")
+			.attr("class","stat-description-p2")
+			.html("<p>Interpreting the correlation coefficient r:</p><ul>"+
+					"<li>Exactly <strong>–1</strong> is a perfect downhill (negative) linear relationship;</li>"+
+					"<li><strong>–0.70</strong> is a strong downhill (negative) linear relationship;</li>"+
+					"<li><strong>–0.50</strong> is a moderate downhill (negative) relationship;</li>"+
+					"<li><strong>–0.30</strong> is a weak downhill (negative) linear relationship;</li>"+
+					"<li><strong>0</strong> is no linear relationship</li>"+
+					"<li><strong>+0.30</strong> is a weak uphill (positive) linear relationship;</li>"+
+					"<li><strong>+0.50</strong> is a moderate uphill (positive) relationship;</li>"+
+					"<li><strong>+0.70</strong> is a strong uphill (positive) linear relationship; and</li>"+
+					"<li>Exactly <strong>+1</strong> is a perfect uphill (positive) linear relationship</li>"+
+				"</ul>");
+
+			var next_btn = container.append("div")
+					.attr("class","session-info pull-left")
+				.append("div")
+					.attr("class","session-btn btn-returning-user")
+					.html("Start exploring the data")
+					.on("click",function(){
+						d3.select("#question-container")
+							.remove();
+
+						d3.select("#footer")
+							.classed("hide",false)
+							.html("");
+
+
+						//set_footer();
+						//$("#timeline").slider().slider('setValue',1990);
+						//set_svg();
+
+						//set_chart_tabs();
+
+						/*var sp = d3.select(".scatterplot-tab");
+						sp.select("path").classed("hide",true);
+						sp.select("rect").classed("hide",true);
+						sp.select("text").classed("hide",true);*/
+
+						//set_axes();
+						//set_timeline();
+
+						d3.select(".zoom-menu")
+							.classed("hide",false);
+						return set_visualization_environment();
+					})
+
+			
+
+		/*var headers = container.append("div")
 			.attr("class","picker headers");
 
 		var headers_data = ["High level goals", "Targets", "Indicators for measuring achivement"];
@@ -1188,7 +1241,7 @@ function go_to_stage3(prevans){
 							.on("click",function(b){
 								/*container.append("i")
 									.attr("class","fa fa-arrow-down");*/
-								set_second_question(b.SeriesRowId);
+								/*set_second_question(b.SeriesRowId);
 							});
 						
 					})
@@ -1200,6 +1253,6 @@ function go_to_stage3(prevans){
 				return d3.event.stopPropagation();
 			});
 
-	});
+	});*/
 
 }

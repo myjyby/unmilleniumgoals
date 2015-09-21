@@ -1,5 +1,5 @@
 function set_mainmenu(){
-	return $.post("/retrievedata", 
+	return $.post("retrievedata", 
 		$.param({ "colname": "Goal" }, true)
 	)
 	.done(function(goals){
@@ -21,7 +21,7 @@ function set_mainmenu(){
 				var parent = d3.select(this);
 				rm(".target")
 
-				$.post("/retrievedata", 
+				$.post("retrievedata", 
 					$.param({ "colname": "Target", "subset_key": "Goal", "subset_value": d }, true)
 				)
 				.done(function(targets){
@@ -39,7 +39,7 @@ function set_mainmenu(){
 							return d;
 						})
 						.on("mouseup",function(c){
-							$.post("/retrievedata", 
+							$.post("retrievedata", 
 								$.param({ "subset_key": "Target", "subset_value": c }, true)
 							)
 							.done(function(data){
@@ -807,7 +807,7 @@ function set_series_menu(position){
 			d3.selectAll(".axis-label button").classed("active",false);
 		});
 
-	return $.post("/retrieveindicators")
+	return $.post("retrieveindicators")
 	.done(function(series){
 
 		// ---- RESET HERE IF WE ONLY WANT THE AGGREGATED VALUES ---- //
@@ -919,7 +919,7 @@ function set_series_menu(position){
 							})
 							.on("click",function(b){
 								//console.log(b.TargetId,b.IsMdg)
-								return $.post("/retrievedata", 
+								return $.post("retrievedata", 
 									$.param({ "colname": "SeriesRowId", "subset_key": "SeriesRowId", "subset_value": b.SeriesRowId }, true)
 								)
 								.done(function(code){
