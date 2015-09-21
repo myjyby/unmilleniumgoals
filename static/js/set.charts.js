@@ -227,7 +227,7 @@ function set_bubbles(x_series,y_series,date,issoloed,sctr,sregion){
 		var parameters = { column: "SeriesRowId", value: [x_series,y_series], date: date, ctr: sctr, region: sregion};
 	}
 
-	return $.post("/retrieveseries", 
+	return $.post("retrieveseries", 
 		$.param(parameters, true)
 		)
 	.done(function(data){
@@ -1912,7 +1912,7 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 			query = { column: "SeriesRowId", value: ux.concat(uy), date: date };
 		}
 
-		$.post("/retrieveseries", 
+		$.post("retrieveseries", 
 			$.param(query, true)
 		)
 		.done(function(data){
