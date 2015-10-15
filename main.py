@@ -11,10 +11,17 @@ import cherrypy
 import pandas as pd
 
 
-cherrypy.config.update({'environment': 'embedded'})
+#cherrypy.config.update({'environment': 'embedded'})
+
+cherrypy.config.update({'server.socket_port': 8090,
+                        'engine.autoreload_on': False,
+                        'log.access_file': '/tmp/unmillenium_access.log',
+                        'log.error_file': '/tmp/unmillenium_error.log'})
 
 print "Loading data"
-data = pd.read_csv('data_final_02.csv.bz2',low_memory=False)
+#data = pd.read_csv('data_final_02.csv.bz2',low_memory=False)
+store = pd.HDFStore('data_final_02.h5')
+data = store['table']
 print "Done."
 
 class Home(object):
@@ -26,12 +33,22 @@ class RetrieveCountries(object):
 	exposed = True
 
 	@cherrypy.tools.accept(media='application/json')
-	def POST(self):
-		group = data.groupby("CountryName")
-		unique_coutnries = group.first()
-		final_df = unique_coutnries[['Region','CountryId']]
-		final_df.reset_index(level=0,inplace=True)
-	
+	def POST(self, area=None):
+
+		if area is not None:
+			df = data[data["Region"] == area]
+
+		else:
+			df = data
+
+		#group = df.groupby("CountryName")
+		#unique_coutnries = group.first()
+		#final_df = unique_coutnries[['Region','CountryId']]
+		#final_df.reset_index(level=0,inplace=True)
+
+		un = df.drop_duplicates(cols='CountryName', take_last=True)
+		final_df = un[['CountryId','Region','CountryName']]
+
 		return final_df.to_json(orient='records')
 
 class RetrieveCountriesin1990(object):
@@ -44,10 +61,14 @@ class RetrieveCountriesin1990(object):
 		filter1 = copy_data['SeriesRowId'] == int(seriesId)
 		filter2 = copy_data['Year'] == 1990
 		copy_data = copy_data[filter1 & filter2]
-		group = copy_data.groupby("CountryName")
-		unique_coutnries = group.first()
-		final_df = unique_coutnries[['Region','CountryId']]
-		final_df.reset_index(level=0,inplace=True)
+		
+		#group = copy_data.groupby("CountryName")
+		#unique_coutnries = group.first()
+		#final_df = unique_coutnries[['Region','CountryId']]
+		#final_df.reset_index(level=0,inplace=True)
+
+		un = copy_data.drop_duplicates(cols='CountryName', take_last=True)
+		final_df = un[['CountryId','Region','CountryName']]
 
 		return final_df.to_json(orient='records')
 
@@ -55,11 +76,22 @@ class RetrieveIndicators(object):
 	exposed = True
 
 	@cherrypy.tools.accept(media='application/json')
-	def POST(self):
-		group = data.groupby("SeriesName")
-		unique_indicators = group.first()
-		final_df = unique_indicators[['GoalName','GoalId','TargetName','TargetId','IndicatorName','SeriesRowId','IsMdg','Disc-level']]
-		final_df.reset_index(level=0,inplace=True)
+	def POST(self, ids=None):
+
+		if ids is not None:
+			filters = map(int,ids)
+			df = data[data['SeriesRowId'].isin(filters)]
+
+		else:
+			df = data
+
+		#group = df.groupby('SeriesName')
+		#unique_indicators = group.first()
+		#final_df = unique_indicators[['GoalName','GoalId','TargetName','TargetId','IndicatorName','SeriesRowId','IsMdg','Disc-level']]
+		#final_df.reset_index(level=0,inplace=True)
+
+		un = df.drop_duplicates(cols='SeriesName', take_last=True)
+		final_df = un[['SeriesName','GoalName','GoalId','TargetName','TargetId','IndicatorName','SeriesRowId','IsMdg','Disc-level']]
 	
 		return final_df.to_json(orient='records')
 
@@ -203,4 +235,5 @@ if __name__ == '__main__':
 	webapp.retrievedata = RetrieveData()
 	webapp.retrieveunique = RetrieveUnique()
 	webapp.retrieveseries = RetrieveSeries()
+	#cherrypy.quickstart(webapp, '/unmilleniumgoals', conf)
 	cherrypy.quickstart(webapp, '/', conf)
