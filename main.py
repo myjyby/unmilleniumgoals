@@ -19,9 +19,9 @@ cherrypy.config.update({'server.socket_port': 8090,
                         'log.error_file': '/tmp/unmillenium_error.log'})
 
 print "Loading data"
-#data = pd.read_csv('data_final_02.csv.bz2',low_memory=False)
-store = pd.HDFStore('data_final_02.h5')
-data = store['table']
+data = pd.read_csv('data_final_02.csv.bz2',low_memory=False)
+#store = pd.HDFStore('data_final_02.h5')
+#data = store['table']
 print "Done."
 
 class Home(object):
