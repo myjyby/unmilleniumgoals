@@ -244,28 +244,28 @@ foreignObject{
 
 .bubble.southernasia.highlight, 
 .bubble.southernasia.highlight-lock{
-	stroke: #a6cee3;
+	stroke: #c6e6f7;
 	stroke-width: 2;
-	fill: #a6cee3;
+	fill: #c6e6f7;
 	fill-opacity: 0.66;
 }
 
 .bubble.southernasia.highlight-lock .variability{
-	stroke: #a6cee3;
-	fill: #a6cee3;
+	stroke: #c6e6f7;
+	fill: #c6e6f7;
 }
 
 .bubble.southeasternasia.highlight, 
 .bubble.southeasternasia.highlight-lock{
-	stroke: #cab2d6;
+	stroke: #ecdbf5;
 	stroke-width: 2;
-	fill: #cab2d6;
+	fill: #ecdbf5;
 	fill-opacity: 0.66;
 }
 
 .bubble.southeasternasia.highlight-lock .variability{
-	stroke: #cab2d6;
-	fill: #cab2d6;
+	stroke: #ecdbf5;
+	fill: #ecdbf5;
 }
 
 .bubble.oceania.highlight, 
@@ -383,7 +383,7 @@ foreignObject{
 
 .bubble.southernasia.highlight .ctr-label-text, 
 .bubble.southernasia.highlight-lock .ctr-label-text{
-	fill: #a6cee3;
+	fill: #c6e6f7;
 	fill-opacity: 1;
 }
 
@@ -394,7 +394,7 @@ foreignObject{
 
 .bubble.southeasternasia.highlight .ctr-label-text, 
 .bubble.southeasternasia.highlight-lock .ctr-label-text{
-	fill: #cab2d6;
+	fill: #ecdbf5;
 	fill-opacity: 1;
 }
 
@@ -448,11 +448,11 @@ foreignObject{
 }
 
 .region-picker #world-map g#southernasia.highlight-lock{
-	fill: #a6cee3;
+	fill: #c6e6f7;
 }
 
 .region-picker #world-map g#southeasternasia.highlight-lock{
-	fill: #cab2d6;
+	fill: #ecdbf5;
 }
 
 .region-picker #world-map g#oceania.highlight-lock{
@@ -499,11 +499,11 @@ foreignObject{
 }
 
 .ts-southernasia .timeseries{
-	stroke: #a6cee3;
+	stroke: #c6e6f7;
 }
 
 .ts-southeasternasia .timeseries{
-	stroke: #cab2d6;
+	stroke: #ecdbf5;
 }
 
 .ts-oceania .timeseries{

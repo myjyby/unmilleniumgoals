@@ -161,6 +161,8 @@ function update_axes(x_label,x_series,x_goal,y_label,y_series,y_goal,duration,x_
 				.duration(_main_transition.fast_duration)
 				.ease(_main_transition.ease)
 				.attr("y2",-_yscale.range()[0]);
+
+				rm_big_feedback_icon();
 		})
 
 	d3.select(".x-label")
@@ -232,8 +234,8 @@ function set_bubbles(x_series,y_series,date,issoloed,sctr,sregion){
 		)
 	.done(function(data){
 		// ---- REMOVE THE LOADER ICON ---- //
-		rm_big_feedback_icon();
-		console.log(data)
+		//rm_big_feedback_icon();
+		//console.log(data)
 
 		var isolationId = check_isolation(),
 			type = get_chart_type();
@@ -420,6 +422,7 @@ function set_bubbles(x_series,y_series,date,issoloed,sctr,sregion){
 			//if(diff_ctrs.indexOf(d.CountryName) !== -1){
 			if(bubble_ctrs.indexOf(d.CountryName) === -1){
 				node.classed("non-existent",true)
+					//.classed(".highlight-lock",false)
 					//.style("background-color","red")
 				node.select(".show-country")
 					.select("i")
@@ -720,6 +723,9 @@ function set_bubbles(x_series,y_series,date,issoloed,sctr,sregion){
 			bubbles.exit()
 				.remove();
 		}
+
+		
+
 	});
 }
 
@@ -728,6 +734,8 @@ function update_bubbles(date,slider,duration){
 	var zoom = check_zoom(),
 		isolationId = check_isolation(),
 		type = get_chart_type();
+
+	// ---- WE MOVE THE REMOVAL OF THE LOADING ICON HERE ---- //
 
 	d3.selectAll(".bubble")
 		/*.classed("contextual",function(d){
@@ -1902,7 +1910,6 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 		set_big_feedback_icon("fa-spin fa-spinner","n");
 
 
-
 		var query = new Object();
 		if(ux && !uy){
 			query = { column: "SeriesRowId", value: ux.concat([0,0]), date: date };
@@ -1917,7 +1924,8 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 		)
 		.done(function(data){
 			// ---- REMOVE THE LOADER ICON ---- //
-			rm_big_feedback_icon();
+			
+			//rm_big_feedback_icon();
 			var xs = { 
 				"gmax": d3.max([data[0].gx_max,x_extent.gmax]),
 				"gmin": d3.min([data[0].gx_min,x_extent.gmin]),
@@ -1962,17 +1970,21 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 					if(ux){
 						if(c.SeriesRowId === ux[0]){
 							x_values_1[+c.Year-1990] = c.Value;
+							x_disc_1 = c.Discrimination;
 						}
 						if(c.SeriesRowId === ux[1]){
 							x_values_2[+c.Year-1990] = c.Value;
+							x_disc_2 = c.Discrimination;
 						}
 					}
 					if(uy){
 						if(c.SeriesRowId === uy[0]){
 							y_values_1[+c.Year-1990] = c.Value;
+							y_disc_1 = c.Discrimination;
 						}
 						if(c.SeriesRowId === uy[1]){
 							y_values_2[+c.Year-1990] = c.Value;
+							y_disc_2 = c.Discrimination;
 						}
 					}
 					/*}else if(type === "lg"){
@@ -1994,6 +2006,14 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 				}*/
 				var obj = new Object;
 				obj.countryid = country_id;
+				if(ux){
+					obj.x_disc_1 = x_disc_1;
+					obj.x_disc_2 = x_disc_2;
+				}
+				if(uy){
+					obj.y_disc_1 = y_disc_1;
+					obj.y_disc_2 = y_disc_2;
+				}
 
 				if(ux){
 					obj.x1 = x_values_1;
@@ -2006,6 +2026,8 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 
 				return obj;
 			});
+
+			//console.log(variability_map)
 
 			var zoom = check_zoom();
 
@@ -2210,7 +2232,7 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							});
 
 							variance1 = bubble_parent.insert("g",":nth-child(2)")
-								.datum({ variability: { x1: d.x1, x2: d.x2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: { x1: d.x1, x2: d.x2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.x_disc_1 })
 								.attr("class",function(c){
 									if(c.variability.x1[year] === "NA" || c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-1 disc-x hide";
@@ -2237,12 +2259,18 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-mars");
+								.attr("class",function(c){
+									if(c.disc === "MEN" || c.disc === "BOY"){
+										return "fa fa-mars";
+									}else if(c.disc === "URB"){
+										return "fa fa-industry";
+									}
+								});
 
 							//console.log(d.x1,d.x2)
 
 							variance2 = bubble_parent.insert("g",":nth-child(3)")
-								.datum({ variability: { x1: d.x1, x2: d.x2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: { x1: d.x1, x2: d.x2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.x_disc_2 })
 								.attr("class",function(c){
 									if(c.variability.x2[year] === "NA" || c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-2 disc-x hide";
@@ -2269,7 +2297,13 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-venus");
+								.attr("class",function(c){
+									if(c.disc === "WMN" || c.disc === "GRL"){
+										return "fa fa-venus";
+									}else if(c.disc === "RUR"){
+										return "fa fa-tree";
+									}
+								});
 
 						}else if(bubble_data.x_variance === "TOT-MID" && bubble_data.y_variance !== "TOT-MID"){
 						
@@ -2314,7 +2348,7 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							});
 
 							variance1 = bubble_parent.insert("g",":nth-child(2)")
-								.datum({ variability: { y1: d.y1, y2: d.y2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: { y1: d.y1, y2: d.y2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.y_disc_1 })
 								.attr("class",function(c){
 									if(c.variability.y1[year] === "NA" || c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-1 disc-y hide";
@@ -2341,10 +2375,16 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-mars");
+								.attr("class",function(c){
+									if(c.disc === "MEN" || c.disc === "BOY"){
+										return "fa fa-mars";
+									}else if(c.disc === "URB"){
+										return "fa fa-industry";
+									}
+								});
 
 							variance2 = bubble_parent.insert("g",":nth-child(3)")
-								.datum({ variability: { y1: d.y1, y2: d.y2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: { y1: d.y1, y2: d.y2 }, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.y_disc_2 })
 								.attr("class",function(c){
 									if(c.variability.y2[year] === "NA" || c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-2 disc-y hide";
@@ -2371,7 +2411,13 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-venus");
+								.attr("class",function(c){
+									if(c.disc === "WMN" || c.disc === "GRL"){
+										return "fa fa-venus";
+									}else if(c.disc === "RUR"){
+										return "fa fa-tree";
+									}
+								});
 
 						}else if(bubble_data.x_variance !== "TOT-MID" && bubble_data.y_variance !== "TOT-MID"){
 							//console.log("but got here")
@@ -2445,7 +2491,7 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 								});
 
 							variance1 = bubble_parent.insert("g",":nth-child(2)")
-								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc_x: d.x_disc_1, disc_y: d.y_disc_1 })
 								.attr("class",function(c){
 									//console.log(c.variability.x1[year] === "NA", c.variability.y1[year] === "NA", c.bubble_x[year] === "NA", c.bubble_y[year] === "NA")
 									if(c.variability.x1[year] === "NA" && c.variability.y1[year] === "NA" || c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
@@ -2471,10 +2517,18 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-mars");
+								.attr("class",function(c){
+									if(c.disc_x === "MEN" && c.disc_y === "MEN" || c.disc_x === "BOY" && c.disc_y === "BOY"){
+										return "fa fa-mars";
+									}else if(c.disc_x === "URB" && c.disc_y === "URB"){
+										return "fa fa-industry";
+									}else{
+										alert("problem with icon in dispartiy")
+									}
+								});
 
 							variance2 = bubble_parent.insert("g",":nth-child(3)")
-								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc_x: d.x_disc_2, disc_y: d.y_disc_2 })
 								.attr("class",function(c){
 									if(c.variability.x2[year] === "NA" && c.variability.y2[year] === "NA" || c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-2 disc-xy hide";
@@ -2501,7 +2555,15 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-venus");
+								.attr("class",function(c){
+									if(c.disc_x === "WMN" && c.disc_y === "WMN" || c.disc_x === "GRL" && c.disc_y === "GRL"){
+										return "fa fa-venus";
+									}else if(c.disc === "RUR" && c.disc_y === "RUR"){
+										return "fa fa-tree";
+									}else{
+										alert("problem with disparity icons")
+									}
+								});
 
 						/*}else if(bubble_data.x_variance !== "TOT-MID"){
 							// ---- DO ONLY X
@@ -2586,7 +2648,7 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							});
 
 							variance1 = bubble_parent.insert("g",":nth-child(2)")
-								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.x_disc_1 })
 								.attr("class",function(c){
 									if(c.variability.x1[year] === "NA" && c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-1 disc-x hide";
@@ -2614,12 +2676,18 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-mars");
+								.attr("class",function(c){
+									if(c.disc === "MEN" || c.disc === "BOY"){
+										return "fa fa-mars";
+									}else if(c.disc === "URB"){
+										return "fa fa-industry";
+									}
+								});
 
 							//console.log(d.x1,d.x2)
 
 							variance2 = bubble_parent.insert("g",":nth-child(3)")
-								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.x_disc_2 })
 								.attr("class",function(c){
 									if(c.variability.x2[year] === "NA" && c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-2 disc-x hide";
@@ -2647,7 +2715,13 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-venus");
+								.attr("class",function(c){
+									if(c.disc === "WMN" || c.disc === "GRL"){
+										return "fa fa-venus";
+									}else if(c.disc === "RUR"){
+										return "fa fa-tree";
+									}
+								});
 						}
 
 					}else if(!d.x1 && !d.x2 && d.y1 && d.y2){
@@ -2694,7 +2768,7 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							});
 
 							variance1 = bubble_parent.insert("g",":nth-child(2)")
-								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.y_disc_1 })
 								.attr("class",function(c){
 									if(c.variability.y1[year] === "NA" && c.bubble_x[year] === "NA" ||c.bubble_y[year] === "NA"){
 										return "variability bounds disc-1 disc-y hide";
@@ -2721,10 +2795,16 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-mars");
+								.attr("class",function(c){
+									if(c.disc === "MEN" || c.disc === "BOY"){
+										return "fa fa-mars";
+									}else if(c.disc === "URB"){
+										return "fa fa-industry";
+									}
+								});
 
 							variance2 = bubble_parent.insert("g",":nth-child(3)")
-								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid })
+								.datum({ variability: d, bubble_x: bubble_data.x, bubble_y: bubble_data.y, countryid: d.countryid, disc: d.y_disc_2 })
 								.attr("class",function(c){
 									if(c.variability.y2[year] === "NA" && c.bubble_x[year] === "NA" || c.bubble_y[year] === "NA"){
 										return "variability bounds disc-2 disc-y hide";
@@ -2751,7 +2831,13 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 							.append("xhtml:body")
 								.attr("class","fo-body variance-symbol")
 							.append("i")
-								.attr("class","fa fa-venus");
+								.attr("class",function(c){
+									if(c.disc === "WMN" || c.disc === "GRL"){
+										return "fa fa-venus";
+									}else if(c.disc === "RUR"){
+										return "fa fa-tree";
+									}
+								});
 						}
 	
 
@@ -2794,6 +2880,42 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 			//d3.select(".variability-menu").classed("hide",false);
 			
 			update_bubble_classes(date);
+
+			if(type === "sp"){
+
+				//if(!isolationId){
+					set_correlation_line();
+				//}
+
+			}else if(type === "lg"){
+				if(!isolationId){
+					update_bubble_classes(date);
+					var mean = get_stat_origindata("mean"),
+						median = get_stat_origindata("median");
+					
+					//alert(d3.select(".show-median").classed("active"))
+
+					if(d3.select(".show-mean").classed("active") === true){
+						set_goal_line(mean,series_y.target,"mean");
+						set_stat_line("mean");
+						update_stat_line("mean");
+					}
+					if(d3.select(".show-median").classed("active") === true){
+						set_goal_line(median,series_y.target,"median");
+						set_stat_line("median");
+						update_stat_line("median");
+					}
+				}else{
+					//console.log(d3.selectAll(".main-bubble"));
+					// REDO HERE SET THE TARGET LINE FOR SINGLE COUNTRY BASED ON data.y[0] / 2 (data FOR 1990/2 IF AVAILABLE FOR 1990)
+					rm_goal_line();
+					rm_stat_lines();
+
+					var datum = d3.select(".bubble-" + isolationId).datum();
+					set_goal_line(datum.y[0],series_y.target);
+				}
+			}
+
 
 			if(inactives.length > 0){
 				update_scales(date);
@@ -2917,7 +3039,17 @@ function check_variability(date,ux,uy,series_x,series_y,x_series,y_series,x_exte
 		d3.selectAll(".soloed").classed("soloed",false);
 		d3.select("#timeline").classed("lock",false);
 		update_bubble_classes(date);
+
+		
+		if(type === "lg" && date === 1990){
+
+			setTimeout(function(){
+				play_timeline(10);
+			},_main_transition.duration);
+		}
 	}
+
+
 }
 
 function set_temporalline(idx,region){
@@ -3291,7 +3423,13 @@ function set_goal_line(originvalue,target,label){
 	}
 
 	target_g = svg.append("g")
-		.attr("class","target-val")
+		.attr("class",function(){
+			if(label){
+				return "target-val target-" + label;
+			}else{
+				return "target-val"
+			}
+		})
 		.attr("transform","translate(" + [_svg.hpadding,_svg.vpadding/2 + _chart.height] + ")");
 
 	target_g.append("rect")
@@ -3425,8 +3563,16 @@ function set_correlation_line(){
 	var py1 = +eq[1],
 		py2 = +eq[0] * xmax + eq[1];
 
+	py1 = _yscale(py1);
+	py2 = _yscale(py2);
 
 	var correlation = Math.round(calcCORRELATION(corr_data,date)*100)/100;
+
+	if(isNaN(correlation) === true){ 
+		py1 = 0;
+		py2 = 0;
+		correlation = "no data"; 
+	};
 
 	stat_g = svg.append("g")
 		.attr("class","correlation")
@@ -3441,9 +3587,9 @@ function set_correlation_line(){
 	stat_g.append("line")
 		.attr("class","stat-line")
 		.attr("x1", 0)
-		.attr("y1", _yscale(py1))
+		.attr("y1", py1)
 		.attr("x2",	_chart.width)
-		.attr("y2", _yscale(py2));
+		.attr("y2", py2);
 
 	stat_g.append("text")
 		.attr("class","stat-text")
@@ -3475,8 +3621,16 @@ function update_correlation_line(){
 	var py1 = +eq[1],
 		py2 = +eq[0] * xmax + eq[1];
 
+	py1 = _yscale(py1);
+	py2 = _yscale(py2);
 
 	var correlation = Math.round(calcCORRELATION(corr_data,date)*100)/100;
+
+	if(isNaN(correlation) === true){ 
+		py1 = 0;
+		py2 = 0;
+		correlation = "no data"; 
+	};
 
 	stat_g = svg.select(".correlation");
 
@@ -3491,9 +3645,9 @@ function update_correlation_line(){
 		.duration(_main_transition.duration)
 		.ease(_main_transition.ease)
 		.attr("x1", 0)
-		.attr("y1", _yscale(py1))
+		.attr("y1", py1)
 		.attr("x2",	_chart.width)
-		.attr("y2", _yscale(py2));
+		.attr("y2", py2);
 
 	stat_g.select("text")
 		.attr("x",5)

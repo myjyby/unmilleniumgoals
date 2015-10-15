@@ -93,7 +93,7 @@ function parseToText(arr)
     Array.prototype.unique = function() {
         var arr = [];
         for(var i = 0; i < this.length; i++) {
-            console.log(this[i]);
+            //console.log(this[i]);
             if(!arr.contains(this[i])) {
                 arr.push(this[i]);
             }
@@ -102,17 +102,17 @@ function parseToText(arr)
     }
     var df_1 = nerdamer('diff('+fn+',x)').toString();
     var temp_sols = nerdamer.solveEquations(df_1+'=0','x');
-    console.log('all roots: '+temp_sols.toString());
+    //console.log('all roots: '+temp_sols.toString());
     var sols = temp_sols.unique(); // only unique roots
     sols.sort( function(a,b) {
         return a-b;
     }); // sorting needed to retain the sequence.
-    console.log('unique and sorted roots: '+sols.toString()+'length:'+sols.length);
+    //console.log('unique and sorted roots: '+sols.toString()+'length:'+sols.length);
     var final_sols = [];
     
     for (var i = 0; i < sols.length; i++)
     {
-        console.log(sols[i].multiplier);
+        //console.log(sols[i].multiplier);
         if((sols[i].multiplier >= xmin) && (sols[i].multiplier <= xmax))
         {
             final_sols.push(sols[i].multiplier);
@@ -120,13 +120,13 @@ function parseToText(arr)
     }
     
     var num_sols = final_sols.length;
-    //console.log(final_sols);
+    ////console.log(final_sols);
     if (num_sols > 0)
     {
         previousX = final_sols[num_sols-1];
     }
 
-   console.log(final_sols)
+   //console.log(final_sols)
     
     var maxmins = [];
     var description = '';
@@ -203,7 +203,7 @@ function get_last(fn,xmin,xmax,targYear)
     Array.prototype.unique = function() {
         var arr = [];
         for(var i = 0; i < this.length; i++) {
-            console.log(this[i]);
+            //console.log(this[i]);
             if(!arr.contains(this[i])) {
                 arr.push(this[i]);
             }
@@ -213,19 +213,19 @@ function get_last(fn,xmin,xmax,targYear)
 
     var df_1 = nerdamer('diff('+fn+',x)').toString();
     var temp_sols = nerdamer.solveEquations(df_1+'=0','x');
-    console.log('all roots: '+temp_sols.toString());
+    //console.log('all roots: '+temp_sols.toString());
     var sols = temp_sols.unique(); // only unique roots
     sols.sort( function(a,b) {
         return a-b;
     }); // sorting needed to retain the sequence.
-    console.log('unique and sorted roots: '+sols.toString()+'length:'+sols.length);
+    //console.log('unique and sorted roots: '+sols.toString()+'length:'+sols.length);
     var final_sols = [];
     
     if ((sols.length > 0) && (sols[0].value === "#"))
     {
         for (var i = 0; i < sols.length; i++)
         {
-            console.log("testing");
+            //console.log("testing");
             if((sols[i].multiplier >= xmin) && (sols[i].multiplier <= xmax))
             {
                 final_sols.push(sols[i].multiplier);
@@ -239,7 +239,7 @@ function get_last(fn,xmin,xmax,targYear)
         previousX = final_sols[num_sols-1];
     }
     
-    console.log(final_sols);
+    //console.log(final_sols);
     var maxmins = [];
     var description = '';
     for (i = 0; i < num_sols; i ++)
@@ -318,7 +318,7 @@ function get_all(fn,xmin,xmax)
     Array.prototype.unique = function() {
         var arr = [];
         for(var i = 0; i < this.length; i++) {
-            console.log(this[i]);
+            //console.log(this[i]);
             if(!arr.contains(this[i])) {
                 arr.push(this[i]);
             }
@@ -327,17 +327,17 @@ function get_all(fn,xmin,xmax)
     }
     var df_1 = nerdamer('diff('+fn+',x)').toString();
     var temp_sols = nerdamer.solveEquations(df_1+'=0','x');
-    console.log('all roots: '+temp_sols.toString());
+    //console.log('all roots: '+temp_sols.toString());
     var sols = temp_sols.unique(); // only unique roots
     sols.sort( function(a,b) {
         return a-b;
     }); // sorting needed to retain the sequence.
-    console.log('unique and sorted roots: '+sols.toString()+'length:'+sols.length);
+    //console.log('unique and sorted roots: '+sols.toString()+'length:'+sols.length);
     var final_sols = [];
     
     for (var i = 0; i < sols.length; i++)
     {
-        console.log(sols[i].multiplier);
+        //console.log(sols[i].multiplier);
         if((sols[i].multiplier >= xmin) && (sols[i].multiplier <= xmax))
         {
             final_sols.push(sols[i].multiplier);
@@ -345,7 +345,7 @@ function get_all(fn,xmin,xmax)
     }
     
     var num_sols = final_sols.length;
-    console.log(final_sols);
+    //console.log(final_sols);
     var maxmins = [];
     var description = '';
     for (i = 0; i < num_sols; i ++)
@@ -358,7 +358,7 @@ function get_all(fn,xmin,xmax)
         }
     }
     
-    console.log('only values from non-complex, unique and sorted roots :'+maxmins);
+    //console.log('only values from non-complex, unique and sorted roots :'+maxmins);
     if (maxmins.length > 0)
     {
         description = parseToText(maxmins);

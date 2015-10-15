@@ -148,3 +148,7 @@ function rm_stat_lines(){
 function rm_correlation_line(){
 	return d3.selectAll(".correlation").remove();
 }
+
+function rm_stat_bubbtons(){
+	return d3.select(".stat-picker-menu").remove();
+}

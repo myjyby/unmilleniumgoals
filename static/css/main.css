@@ -376,13 +376,22 @@ h2.goal-opt{
 	cursor: pointer;
 }
 
-.stat-menu .show-mean.active, .stat-menu .show-median.active{
+.stat-menu .show-correlation{
+	width: 100%;
+	height: 100%;
+	float: left;
+	text-align: center;
+	line-height: 30px;
+	cursor: pointer;
+}
+
+.stat-menu .show-mean.active, .stat-menu .show-median.active, .stat-menu .show-correlation.active{
 	background-color: #333;
 	color: #FFF;
 	cursor: pointer;
 }
 
-.stat-menu.lock .show-mean, .stat-menu .show-median{
+.stat-menu.lock .show-mean, .stat-menu.lock .show-median{
 	cursor: default;
 }
 
@@ -603,8 +612,9 @@ h2.goal-opt{
 }
 
 .non-existent{
-	color: grey;
+	color: grey !important;
 	text-decoration: line-through;
+	background-color: transparent !important;
 }
 
 .non-existent .fa-chain-broken{

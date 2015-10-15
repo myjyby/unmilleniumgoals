@@ -50,9 +50,13 @@ function set_visualization_environment(){
 	set_axes();
 	set_timeline();
 
+	set_big_feedback_icon("fa-spin fa-spinner","n");
+
 	return $.post("retrievecountries")
 	.done(function(countries){
+		console.log(countries)
 		set_countrymenu(countries);
+		rm_big_feedback_icon();
 		set_bubbles(553,562,1990);
 
 	});
@@ -660,6 +664,8 @@ function play_timeline(timestep,setquestion){
 					update_stat_line("median",timestep);
 				}
 			}
+
+			//console.log(year)
 		}, slider_step);
 	}else{
 		node.classed("active",false)
@@ -914,11 +920,24 @@ function estimate_soloed_countries_achievement(answer){
 			not_null = get_notnull_years(data),
 			last_data_available = data[0].x[not_null[not_null.length-1]];
 
+		var targetId = d3.select(".y-label").datum().TargetId,
+			dividende = 1;
+
+		if([1,2,10].indexOf(targetId) !== -1){
+			dividende = 2;
+		}else if(targetId === 5){
+			dividende = 3;
+		}else if(targetId === 6){
+			dividende = 4;
+		}
+
+		var target_val = y_values[0]/dividende;
+
 		var intersect = new Array(),
 			text = data[0].country + " had not reached its target by " + last_data_available + ", when data was last available.";
 
 		not_null.forEach(function(d){
-			if(data[0].y[d] < target){
+			if(data[0].y[d] < target_val){
 				intersect.push({ x: data[0].x[d], y: data[0].y[d] });
 			}
 			return;
@@ -1023,7 +1042,7 @@ function estimate_soloed_countries_achievement_proba(answer,value,trend,descript
 		.attr("width", _chart.width/2)
 		.attr("height", _chart.height)
 		.attr("x", _svg.hpadding)
-		.attr("y", _svg.vpadding/2 - (_chart.height-_yscale(y_offset)));
+		.attr("y", _yscale(y_offset) - _chart.height + _svg.vpadding/2);
 
 	var feedback_fo_body = feedback_fo.append("xhtml:body")
 		.attr("class","fo-body textual-feedback-body")
@@ -1069,9 +1088,9 @@ function estimate_soloed_regions_achievement(answer,stat){
 
 	if([1,2,10].indexOf(targetId) !== -1){
 		dividende = 2;
-	}else if(target === 5){
+	}else if(targetId === 5){
 		dividende = 3;
-	}else if(target === 6){
+	}else if(targetId === 6){
 		dividende = 4;
 	}
 

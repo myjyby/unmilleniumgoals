@@ -17,8 +17,14 @@ function set_first_question(){
 			//d3.event.preventDefault();
 		})*/
 
-	return $.post("retrieveindicators")
+	//[580,581,559,569,553,665,668,591]
+
+	return $.post("retrieveindicators",
+			$.param({ ids: [580,559,553,665,668] }, true)
+		)
 	.done(function(series){
+
+	
 		series = d3.nest()
 			.key(function(d){ return d.GoalName; }).sortKeys(d3.ascending)
 			.key(function(d){ return d.TargetName }).sortKeys(d3.ascending)
@@ -132,7 +138,7 @@ function set_first_question(){
 							.html(function(b){
 								return b.SeriesName; // + " " + b.IsMdg;
 							})
-							.on("mouseover",function(){
+							.on("mouseover",function(b){
 								var parent = d3.select(this);
 								d3.selectAll("li.series.indicator").classed("active",false);
 								parent.classed("active",true);
@@ -554,8 +560,15 @@ function set_region_picker(countries,seriesId){
 			set_axes();
 			set_timeline();
 
-			$.post("retrievecountries")
+			set_big_feedback_icon("fa-spin fa-spinner","n");
+
+			$.post("retrievecountriesin1990",
+				{ 'seriesId': seriesId }
+			)
 			.done(function(countries){
+
+				rm_big_feedback_icon();
+
 				set_countrymenu(countries);
 
 				d3.select("#" + d.Region).classed("highlight-lock",true);
@@ -690,8 +703,21 @@ function set_response_field(qidx,prevans){
 	var bubble_data = d3.select(".bubble.soloed").datum(),
 		cdata = jQuery.extend({}, bubble_data),
 		ts_data = new Array(),
-		year = check_date(),
-		target_val = cdata.y[0]/2;
+		year = check_date();
+
+	var targetId = d3.select(".y-label").datum().TargetId,
+		dividende = 1;
+
+	if([1,2,10].indexOf(targetId) !== -1){
+		dividende = 2;
+	}else if(targetId === 5){
+		dividende = 3;
+	}else if(targetId === 6){
+		dividende = 4;
+	}
+
+	var target_val = cdata.y[0]/dividende;
+
 	for(var j=1990; j<=year; j++){
 		/*if(cdata.y[j-1990] === "NA" && j>1990){
 			cdata.y[j-1990] = cdata.y[j-1990-1];
@@ -881,6 +907,7 @@ function clear_and_go_next(stage,data){
 }
 
 function go_to_stage2(area,region,indicator){
+
 	d3.select("svg").remove();
 
 	d3.select("#footer")
@@ -937,8 +964,13 @@ function go_to_stage2(area,region,indicator){
 			set_axes();
 			set_timeline();
 
+			set_big_feedback_icon("fa-spin fa-spinner","n");
+
 			$.post("retrievecountries")
 			.done(function(countries){
+
+				rm_big_feedback_icon();
+
 				set_countrymenu(countries);
 
 				d3.select("#" + region).classed("highlight-lock",true);
@@ -1002,8 +1034,15 @@ function go_to_stage2(area,region,indicator){
 			set_axes();
 			set_timeline();
 
-			$.post("retrievecountries")
+			set_big_feedback_icon("fa-spin fa-spinner","n");
+
+			$.post("retrievecountries",
+				$.param({ area: region })
+				)
 			.done(function(countries){
+
+				rm_big_feedback_icon();
+
 				set_countrymenu(countries);
 
 				d3.select("#" + region).classed("highlight-lock",true);

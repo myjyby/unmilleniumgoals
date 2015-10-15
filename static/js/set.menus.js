@@ -158,6 +158,10 @@ function set_countrymenu(countries){
 
 				rm_temporalline();
 
+				d3.select(".correlation").classed("hide",true);
+				d3.selectAll(".stat").classed("hide",true);
+				d3.selectAll(".target-val").classed("hide",true);
+
 				// ---- NEED TO REMOVE THE HIGHLIGHTS IN THE MAP ---- //
 				map_regions.classed("highlight-lock",false)
 					.classed("active",false);
@@ -226,10 +230,30 @@ function set_countrymenu(countries){
 					x_goal = d3.select(".x-label").datum().GoalId,
 					y_goal = d3.select(".y-label").datum().GoalId;
 
+				if(type === "sp"){
+					if(d3.select(".show-correlation").classed("active") === true){
+						d3.select(".correlation").classed("hide",false);
+					}
+				}else if(type === "lg"){
+					if(d3.select(".show-mean").classed("active") === true){
+						d3.selectAll(".stat").classed("hide",false);
+					}
+					if(d3.select(".show-median").classed("active") === true){
+						d3.selectAll(".target-val").classed("hide",false);
+					}
+				}
+
 				update_bubble_classes(date);
 				update_scales(date);
 				update_axes(x_name,x_series,x_goal,y_name,y_series,y_goal,null,x_target,y_target);
 				update_bubbles(date,null);
+
+				if(type === "sp"){
+					update_correlation_line();
+				}else if(type === "lg"){
+					update_stat_line("mean");
+					update_stat_line("median");
+				}
 
 			}
 
@@ -410,7 +434,6 @@ function set_countrymenu(countries){
 
 					bubble_parent.selectAll(".variability").classed("hide",true);
 
-
 				}else{
 					node.html("<i class='fa fa-eye'></i>");
 					
@@ -431,6 +454,8 @@ function set_countrymenu(countries){
 				update_bubble_classes(check_date());
 				update_scales(check_date(),null,true);
 				update_bubbles(check_date());
+
+				update_correlation_line();
 			}else{
 				return null;
 			}
@@ -705,6 +730,8 @@ function set_countrymenu(countries){
 				//update_scales(date);
 				update_bubbles(date);
 
+				update_correlation_line();
+
 				set_big_feedback_icon("fa-search-plus");
 			};
 		});
@@ -760,6 +787,8 @@ function set_countrymenu(countries){
 				//update_scales(date);
 				update_bubbles(date);
 
+				update_correlation_line();
+
 				set_big_feedback_icon("fa-search-minus");
 			}
 		});
@@ -807,13 +836,17 @@ function set_series_menu(position){
 			d3.selectAll(".axis-label button").classed("active",false);
 		});
 
+	set_big_feedback_icon("fa-spin fa-spinner","n");
+
 	return $.post("retrieveindicators")
 	.done(function(series){
 
+		rm_big_feedback_icon();
+
 		// ---- RESET HERE IF WE ONLY WANT THE AGGREGATED VALUES ---- //
-		/*series = series.filter(function(d){
-			return d["Disc-level"] === 0;
-		})*/
+		series = series.filter(function(d){
+			return d["Disc-level"] === false;
+		})
 		//console.log(series)
 
 		series = d3.nest()
@@ -984,6 +1017,9 @@ function set_chart_tabs(){
 				d3.select(".zoom-menu").classed("hide",false);
 
 				//rm_all_bubbles();
+				// CHANGE THE STAT BUTTONS
+				set_stat_buttons();
+
 				// ALSO NEEED TO REMOVE LINES 
 				return set_bubbles(x_series,y_series,year);
 			}
@@ -1041,11 +1077,14 @@ function set_chart_tabs(){
 				//rm_all_bubbles();
 				// ALSO NEEED TO REMOVE LINES 
 				set_bubbles(x_series,y_series,year);
-				if(year === 1990){
+				/*if(year === 1990){
 					setTimeout(function(){
 						play_timeline(10);
 					},_main_transition.duration);
-				}
+				}*/
+
+				// ---- CHANGE THE STAT BUTTONS ---- //
+				set_stat_buttons();
 			}
 		});
 
@@ -1073,7 +1112,11 @@ function set_chart_tabs(){
 }
 
 function set_stat_buttons(){
-	var svg = d3.select("svg");
+	var svg = d3.select("svg"),
+		type = get_chart_type();
+
+	// ---- RESET BUTTONS ---- //
+	rm_stat_bubbtons();
 
 	var fo = svg.append("foreignObject")
 		.attr("class","stat-picker-menu")
@@ -1088,36 +1131,62 @@ function set_stat_buttons(){
 	var stat_menu = fo_body.append("div")
 		.attr("class","stat-menu");
 
-	stat_menu.append("div")
-		.attr("class","show-mean active")
-		.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Mean")
-		.on("mousedown",function(){
+	
+	if (type === "sp"){
+		stat_menu.append("div")
+			.attr("class","show-correlation active")
+			.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Correlation")
+			.on("mousedown",function(){
 
-		})
-		.on("mouseup",function(){
+			})
+			.on("mouseup",function(){
 
-		})
-		.on("click",function(){
-			var node = d3.select(this);
-			if(node.classed("lock") === false){
+			})
+			.on("click",function(){
+				var node = d3.select(this);
+				if(node.classed("lock") === false){
+					toggle_class(node,"active");
+					toggle_class(d3.select(".correlation"),"hide");
+					//toggle_class(d3.select(".target-mean"),"hide");
+				}
+			});
 
-			}
-		});
+	}else if(type === "lg"){
+		stat_menu.append("div")
+			.attr("class","show-mean active")
+			.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Mean")
+			.on("mousedown",function(){
 
-	stat_menu.append("div")
-		.attr("class","show-median active")
-		.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Median")
-		.on("mousedown",function(){
+			})
+			.on("mouseup",function(){
 
-		})
-		.on("mouseup",function(){
+			})
+			.on("click",function(){
+				var node = d3.select(this);
+				if(node.classed("lock") === false){
+					toggle_class(node,"active");
+					toggle_class(d3.select(".stat.mean"),"hide");
+					toggle_class(d3.select(".target-mean"),"hide");
+				}
+			});
 
-		})
-		.on("click",function(){
-			var node = d3.select(this);
-			if(node.classed("lock") === false){
-				
-			}
-		});
+		stat_menu.append("div")
+			.attr("class","show-median active")
+			.html("<i class='fa fa-line-chart'></i>&nbsp;&nbsp;&nbsp;Median")
+			.on("mousedown",function(){
+
+			})
+			.on("mouseup",function(){
+
+			})
+			.on("click",function(){
+				var node = d3.select(this);
+				if(node.classed("lock") === false){
+					toggle_class(node,"active");
+					toggle_class(d3.select(".stat.median"),"hide");
+					toggle_class(d3.select(".target-median"),"hide");
+				}
+			});
+	}
 
 }
